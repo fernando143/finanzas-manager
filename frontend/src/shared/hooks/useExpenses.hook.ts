@@ -112,7 +112,7 @@ export const useExpenses = (): UseExpensesReturn => {
   }, [])
 
   const markAsPaid = useCallback(async (id: string): Promise<boolean> => {
-    return await updateExpense(id, { status: 'paid' }) !== null
+    return await updateExpense(id, { status: 'PAID' }) !== null
   }, [updateExpense])
 
   const refreshExpenses = useCallback(async () => {

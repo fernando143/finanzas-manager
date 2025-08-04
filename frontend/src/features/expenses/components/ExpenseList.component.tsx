@@ -174,7 +174,7 @@ export const ExpenseList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">
-                          {expense.category?.name || 'Sin categoría'}
+                          {expense.categoryId || 'Sin categoría'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

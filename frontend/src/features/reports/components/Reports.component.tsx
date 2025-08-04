@@ -78,7 +78,7 @@ export const Reports = () => {
     if (totalExpenses === 0) return []
 
     const expensesByCategory = expenses.reduce((acc, expense) => {
-      acc[expense.category] = (acc[expense.category] || 0) + Number(expense.amount)
+      acc[expense.categoryId] = (acc[expense.categoryId] || 0) + Number(expense.amount)
       return acc
     }, {} as Record<string, number>)
 

@@ -183,7 +183,7 @@ export const DueDatesCalendar = () => {
                             <h4 className="text-sm font-medium text-gray-900">
                               {expense.description}
                             </h4>
-                            <p className="text-sm text-gray-500">{expense.category}</p>
+                            <p className="text-sm text-gray-500">{expense.categoryId}</p>
                           </div>
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(expense.status)}`}>
                             {getStatusText(expense.status)}
@@ -193,7 +193,7 @@ export const DueDatesCalendar = () => {
                           <span className="text-lg font-semibold text-red-600">
                             {formatCurrency(expense.amount)}
                           </span>
-                          {expense.status === 'pending' && (
+                          {expense.status === 'PENDING' && (
                             <button
                               onClick={() => handleMarkAsPaid(expense.id)}
                               className="text-sm text-blue-600 hover:text-blue-800"
@@ -235,7 +235,7 @@ export const DueDatesCalendar = () => {
                 <span className="font-medium text-red-600">
                   {formatCurrency(
                     expenses
-                      .filter(e => e.dueDate && isSameMonth(parseISO(e.dueDate), currentDate) && e.status === 'pending')
+                      .filter(e => e.dueDate && isSameMonth(parseISO(e.dueDate), currentDate) && e.status === 'PENDING')
                       .reduce((sum, e) => sum + Number(e.amount), 0)
                   )}
                 </span>
@@ -243,14 +243,14 @@ export const DueDatesCalendar = () => {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Pagos vencidos:</span>
                 <span className="font-medium text-red-600">
-                  {expenses.filter(e => e.status === 'overdue').length}
+                  {expenses.filter(e => e.status === 'OVERDUE').length}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Pagos completados:</span>
                 <span className="font-medium text-green-600">
                   {expenses
-                    .filter(e => e.dueDate && isSameMonth(parseISO(e.dueDate), currentDate) && e.status === 'paid')
+                    .filter(e => e.dueDate && isSameMonth(parseISO(e.dueDate), currentDate) && e.status === 'PAID')
                     .length
                   }
                 </span>

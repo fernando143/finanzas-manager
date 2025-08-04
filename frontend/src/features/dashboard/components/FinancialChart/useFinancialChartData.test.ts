@@ -325,14 +325,14 @@ describe('useFinancialChartData', () => {
       {
         description: "test expense",
         amount: 10,
-        category: "Test",
+        categoryId: "Test",
         dueDate: "2025-08-02",
         userId: "1",
         id: "expense-1",
         createdAt: "2025-07-15T12:00:00.000Z",
         updatedAt: "2025-07-15T12:00:00.000Z",
-        frequency: "monthly",
-        status: "pending"
+        frequency: "MONTHLY",
+        status: "PENDING"
       }
     ]
 

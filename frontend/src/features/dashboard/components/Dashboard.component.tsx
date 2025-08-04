@@ -30,9 +30,9 @@ export const Dashboard = () => {
   const stats = useMemo((): DashboardStats => {
     const totalIncome = incomes.reduce((sum, income) => sum + Number(income.amount), 0)
     const totalExpenses = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0)
-    const overdueCount = expenses.filter(expense => expense.status === 'overdue').length
+    const overdueCount = expenses.filter(expense => expense.status === 'OVERDUE').length
     const upcomingCount = expenses.filter(expense =>
-      expense.status === 'pending' && expense.dueDate &&
+      expense.status === 'PENDING' && expense.dueDate &&
       isAfter(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), parseISO(expense.dueDate))
     ).length
 
@@ -48,7 +48,7 @@ export const Dashboard = () => {
   // Calculate upcoming expenses
   const upcomingExpenses = useMemo(() => {
     return expenses
-      .filter(expense => expense.status === 'pending' || expense.status === 'overdue')
+      .filter(expense => expense.status === 'PENDING' || expense.status === 'OVERDUE')
       .slice(0, 5)
   }, [expenses])
 
