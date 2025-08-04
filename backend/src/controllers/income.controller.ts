@@ -2,6 +2,7 @@ import { Response } from 'express'
 import { z } from 'zod'
 import { incomeService } from '../services'
 import { AuthenticatedRequest, asyncHandler } from '../middleware'
+import { IncomeWhereClause } from '../types'
 
 // Helper function to validate GMT-3 noon dates (15:00 UTC)
 const validateGMT3NoonDate = (dateString: string): boolean => {
@@ -57,7 +58,7 @@ export const IncomeController = {
     const { page, limit, category, frequency, isActive, dateFrom, dateTo, sort, order } = query
     
     // Build where clause
-    const whereClause: any = {}
+    const whereClause: IncomeWhereClause = {}
     if (category) whereClause.categoryId = category
     if (frequency) whereClause.frequency = frequency
     if (isActive !== undefined) whereClause.isActive = isActive
@@ -180,9 +181,9 @@ export const IncomeController = {
     const { category, frequency, dateFrom, dateTo } = req.query
     
     // Build where clause
-    const whereClause: any = {}
+    const whereClause: IncomeWhereClause = {}
     if (category) whereClause.categoryId = category as string
-    if (frequency) whereClause.frequency = frequency as string
+    if (frequency) whereClause.frequency = frequency as 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY' | 'ANNUAL' | 'ONE_TIME'
     if (dateFrom || dateTo) {
       whereClause.incomeDate = {}
       if (dateFrom) whereClause.incomeDate.gte = new Date(dateFrom as string)
@@ -207,9 +208,9 @@ export const IncomeController = {
     const { category, frequency, isActive } = req.query
     
     // Build where clause
-    const whereClause: any = {}
+    const whereClause: IncomeWhereClause = {}
     if (category) whereClause.categoryId = category as string
-    if (frequency) whereClause.frequency = frequency as string
+    if (frequency) whereClause.frequency = frequency as 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY' | 'ANNUAL' | 'ONE_TIME'
     if (isActive !== undefined) whereClause.isActive = isActive === 'true'
     
     const count = await incomeService.count(userId, whereClause)

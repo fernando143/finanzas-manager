@@ -1,6 +1,6 @@
 // Common types for the Fianzas Manager API
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
@@ -52,4 +52,30 @@ export interface SavingsGoal {
   timeframe: 'short' | 'medium' | 'long';
   createdAt: Date;
   updatedAt: Date;
+}
+
+// Query parameter interfaces for controllers
+export interface ExpenseWhereClause {
+  categoryId?: string;
+  frequency?: 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY' | 'ANNUAL' | 'ONE_TIME';
+  status?: 'PENDING' | 'PAID' | 'OVERDUE' | 'PARTIAL';
+  dueDate?: {
+    gte?: Date;
+    lte?: Date;
+  };
+}
+
+export interface IncomeWhereClause {
+  categoryId?: string;
+  frequency?: 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY' | 'ANNUAL' | 'ONE_TIME';
+  isActive?: boolean;
+  incomeDate?: {
+    gte?: Date;
+    lte?: Date;
+  };
+}
+
+export interface CategoryWhereClause {
+  type?: 'INCOME' | 'EXPENSE';
+  parentId?: string | null;
 }

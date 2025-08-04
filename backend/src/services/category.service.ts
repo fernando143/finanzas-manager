@@ -13,7 +13,7 @@ const CategoryCreateSchema = z.object({
 const CategoryUpdateSchema = CategoryCreateSchema.partial()
 
 export class CategoryService {
-  async create(userId: string, data: z.infer<typeof CategoryCreateSchema>) {
+  async create(userId: string, data: z.infer<typeof CategoryCreateSchema>): Promise<Category & { parent: Category | null; children: Category[] }> {
     // Validar datos
     const validatedData = CategoryCreateSchema.parse(data)
     
@@ -53,7 +53,7 @@ export class CategoryService {
     where?: Prisma.CategoryWhereInput
     orderBy?: Prisma.CategoryOrderByWithRelationInput
     includeGlobal?: boolean
-  }) {
+  }): Promise<(Category & { parent: Category | null; children: Category[] })[]> {
     const whereClause: Prisma.CategoryWhereInput = {
       OR: [
         { userId: userId },
@@ -80,7 +80,7 @@ export class CategoryService {
     })
   }
 
-  async findById(userId: string, id: string, includeGlobal: boolean = true) {
+  async findById(userId: string, id: string, includeGlobal = true): Promise<(Category & { parent: Category | null; children: Category[] }) | null> {
     const whereClause: Prisma.CategoryWhereInput = {
       id,
       OR: [
@@ -104,7 +104,7 @@ export class CategoryService {
     })
   }
 
-  async update(userId: string, id: string, data: z.infer<typeof CategoryUpdateSchema>) {
+  async update(userId: string, id: string, data: z.infer<typeof CategoryUpdateSchema>): Promise<Category & { parent: Category | null; children: Category[] }> {
     const validatedData = CategoryUpdateSchema.parse(data)
     
     // Verificar que la categoría existe y pertenece al usuario (no se pueden editar las globales)
@@ -149,7 +149,7 @@ export class CategoryService {
     })
   }
 
-  async delete(userId: string, id: string) {
+  async delete(userId: string, id: string): Promise<Category> {
     // Verificar que la categoría existe y pertenece al usuario
     const existingCategory = await prisma.category.findFirst({
       where: { id, userId },
@@ -183,7 +183,7 @@ export class CategoryService {
     })
   }
 
-  async findByType(userId: string, type: 'INCOME' | 'EXPENSE', includeGlobal: boolean = true) {
+  async findByType(userId: string, type: 'INCOME' | 'EXPENSE', includeGlobal = true): Promise<Category[]> {
     return this.findMany(userId, {
       where: { type },
       includeGlobal,
@@ -191,7 +191,7 @@ export class CategoryService {
     })
   }
 
-  async search(userId: string, query: string, includeGlobal: boolean = true) {
+  async search(userId: string, query: string, includeGlobal = true): Promise<(Category & { parent: Category | null; children: Category[] })[]> {
     const whereClause: Prisma.CategoryWhereInput = {
       OR: [
         { userId: userId },
@@ -213,7 +213,7 @@ export class CategoryService {
     })
   }
 
-  async getHierarchy(userId: string, type?: 'INCOME' | 'EXPENSE', includeGlobal: boolean = true) {
+  async getHierarchy(userId: string, type?: 'INCOME' | 'EXPENSE', includeGlobal = true): Promise<(Category & { parent: Category | null; children: (Category & { parent: Category | null; children: Category[] })[] })[]> {
     const whereClause: Prisma.CategoryWhereInput = {
       OR: [
         { userId: userId },

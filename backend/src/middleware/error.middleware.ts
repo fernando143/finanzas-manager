@@ -11,14 +11,14 @@ export const errorHandler = (
   error: AppError | ZodError | Error,
   req: Request,
   res: Response,
-  next: NextFunction
-) => {
+  _next: NextFunction
+): void => {
   console.error('Error occurred:', {
     message: error.message,
     stack: error.stack,
     url: req.url,
     method: req.method,
-    body: req.body,
+    body: req.body as unknown,
     query: req.query,
     params: req.params,
   })
@@ -28,7 +28,7 @@ export const errorHandler = (
     return res.status(400).json({
       error: 'Validation failed',
       code: 'VALIDATION_ERROR',
-      details: error.issues.map((err: any) => ({
+      details: error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
         code: err.code,

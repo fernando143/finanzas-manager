@@ -32,7 +32,7 @@ export class AuthService {
   private readonly JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d'
   private readonly BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '12')
 
-  async register(data: z.infer<typeof RegisterSchema>) {
+  async register(data: z.infer<typeof RegisterSchema>): Promise<{ user: User; token: string }> {
     const validatedData = RegisterSchema.parse(data)
 
     // Verificar si el usuario ya existe
@@ -83,7 +83,7 @@ export class AuthService {
     }
   }
 
-  async login(data: z.infer<typeof LoginSchema>) {
+  async login(data: z.infer<typeof LoginSchema>): Promise<{ user: User; token: string }> {
     const validatedData = LoginSchema.parse(data)
 
     // Buscar usuario
@@ -117,7 +117,7 @@ export class AuthService {
     }
   }
 
-  async changePassword(userId: string, data: z.infer<typeof ChangePasswordSchema>) {
+  async changePassword(userId: string, data: z.infer<typeof ChangePasswordSchema>): Promise<{ message: string }> {
     const validatedData = ChangePasswordSchema.parse(data)
 
     // Buscar usuario
@@ -148,7 +148,7 @@ export class AuthService {
     return { message: 'Password changed successfully' }
   }
 
-  async updateProfile(userId: string, data: { name?: string; email?: string }) {
+  async updateProfile(userId: string, data: { name?: string; email?: string }): Promise<User> {
     const updateData: any = {}
 
     if (data.name) {
@@ -183,7 +183,7 @@ export class AuthService {
     return updatedUser
   }
 
-  async getUserById(userId: string) {
+  async getUserById(userId: string): Promise<User | null> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -230,7 +230,7 @@ export class AuthService {
     } as jwt.SignOptions)
   }
 
-  async refreshToken(userId: string) {
+  async refreshToken(userId: string): Promise<{ token: string }> {
     const user = await this.getUserById(userId)
     
     const token = this.generateToken({ 
@@ -241,7 +241,7 @@ export class AuthService {
     return { token }
   }
 
-  async deleteAccount(userId: string, password: string) {
+  async deleteAccount(userId: string, password: string): Promise<{ message: string }> {
     // Verificar contraseña antes de eliminar
     const user = await prisma.user.findUnique({
       where: { id: userId },

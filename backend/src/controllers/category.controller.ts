@@ -2,6 +2,7 @@ import { Response } from 'express'
 import { z } from 'zod'
 import { categoryService } from '../services'
 import { AuthenticatedRequest, asyncHandler } from '../middleware'
+import { CategoryWhereClause } from '../types'
 
 // Validation schemas
 const CategoryCreateSchema = z.object({
@@ -32,7 +33,7 @@ export const CategoryController = {
     const { page, limit, type, includeGlobal, parentId, sort, order } = query
     
     // Build where clause
-    const whereClause: any = {}
+    const whereClause: CategoryWhereClause = {}
     if (type) whereClause.type = type
     if (parentId !== undefined) whereClause.parentId = parentId
     

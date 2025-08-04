@@ -17,7 +17,7 @@ prisma.$use(async (params, next) => {
 })
 
 // Función de conexión
-export const connectDatabase = async () => {
+export const connectDatabase = async (): Promise<void> => {
   try {
     await prisma.$connect()
     console.log('✅ Database connected successfully')
@@ -32,7 +32,7 @@ export const connectDatabase = async () => {
 }
 
 // Función de desconexión
-export const disconnectDatabase = async () => {
+export const disconnectDatabase = async (): Promise<void> => {
   try {
     await prisma.$disconnect()
     console.log('✅ Database disconnected successfully')
@@ -42,7 +42,7 @@ export const disconnectDatabase = async () => {
 }
 
 // Función de health check
-export const healthCheck = async () => {
+export const healthCheck = async (): Promise<{ status: string; timestamp: string; error?: string }> => {
   try {
     await prisma.$queryRaw`SELECT 1`
     return { status: 'healthy', timestamp: new Date().toISOString() }
@@ -52,16 +52,14 @@ export const healthCheck = async () => {
 }
 
 // Manejar shutdown gracefully
-process.on('SIGTERM', async () => {
+process.on('SIGTERM', () => {
   console.log('⚠️  SIGTERM received, closing database connection...')
-  await disconnectDatabase()
-  process.exit(0)
+  disconnectDatabase().finally(() => process.exit(0))
 })
 
-process.on('SIGINT', async () => {
+process.on('SIGINT', () => {
   console.log('⚠️  SIGINT received, closing database connection...')
-  await disconnectDatabase()
-  process.exit(0)
+  disconnectDatabase().finally(() => process.exit(0))
 })
 
 export { prisma }

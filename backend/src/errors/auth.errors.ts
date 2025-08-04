@@ -4,7 +4,7 @@ export class AuthenticationError extends Error implements AppError {
   statusCode: number
   code: string
 
-  constructor(message: string = 'Authentication failed', code: string = 'AUTH_ERROR') {
+  constructor(message = 'Authentication failed', code = 'AUTH_ERROR') {
     super(message)
     this.name = 'AuthenticationError'
     this.statusCode = 401
@@ -16,7 +16,7 @@ export class AuthorizationError extends Error implements AppError {
   statusCode: number
   code: string
 
-  constructor(message: string = 'Access denied', code: string = 'FORBIDDEN') {
+  constructor(message = 'Access denied', code = 'FORBIDDEN') {
     super(message)
     this.name = 'AuthorizationError'
     this.statusCode = 403
@@ -28,7 +28,7 @@ export class ValidationError extends Error implements AppError {
   statusCode: number
   code: string
 
-  constructor(message: string = 'Validation failed', code: string = 'VALIDATION_ERROR') {
+  constructor(message = 'Validation failed', code = 'VALIDATION_ERROR') {
     super(message)
     this.name = 'ValidationError'
     this.statusCode = 400
@@ -40,7 +40,7 @@ export class ConflictError extends Error implements AppError {
   statusCode: number
   code: string
 
-  constructor(message: string = 'Resource conflict', code: string = 'CONFLICT') {
+  constructor(message = 'Resource conflict', code = 'CONFLICT') {
     super(message)
     this.name = 'ConflictError'
     this.statusCode = 409

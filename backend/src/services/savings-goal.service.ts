@@ -1,5 +1,5 @@
 import { prisma } from './database.service'
-import { SavingsGoal, Prisma } from '../generated/prisma'
+import { Prisma } from '../generated/prisma'
 import { z } from 'zod'
 
 // Schemas de validación
@@ -15,7 +15,7 @@ const SavingsGoalCreateSchema = z.object({
 const SavingsGoalUpdateSchema = SavingsGoalCreateSchema.partial()
 
 export class SavingsGoalService {
-  async create(userId: string, data: z.infer<typeof SavingsGoalCreateSchema>) {
+  async create(userId: string, data: z.infer<typeof SavingsGoalCreateSchema>): Promise<SavingsGoal> {
     // Validar datos
     const validatedData = SavingsGoalCreateSchema.parse(data)
     
@@ -33,7 +33,7 @@ export class SavingsGoalService {
     take?: number
     where?: Prisma.SavingsGoalWhereInput
     orderBy?: Prisma.SavingsGoalOrderByWithRelationInput
-  }) {
+  }): Promise<SavingsGoal[]> {
     return prisma.savingsGoal.findMany({
       where: {
         userId,
@@ -45,13 +45,13 @@ export class SavingsGoalService {
     })
   }
 
-  async findById(userId: string, id: string) {
+  async findById(userId: string, id: string): Promise<SavingsGoal | null> {
     return prisma.savingsGoal.findFirst({
       where: { id, userId },
     })
   }
 
-  async update(userId: string, id: string, data: z.infer<typeof SavingsGoalUpdateSchema>) {
+  async update(userId: string, id: string, data: z.infer<typeof SavingsGoalUpdateSchema>): Promise<SavingsGoal> {
     const validatedData = SavingsGoalUpdateSchema.parse(data)
     
     // Verificar que la meta existe y pertenece al usuario
@@ -69,7 +69,7 @@ export class SavingsGoalService {
     })
   }
 
-  async delete(userId: string, id: string) {
+  async delete(userId: string, id: string): Promise<SavingsGoal> {
     // Verificar que la meta existe y pertenece al usuario
     const existingGoal = await this.findById(userId, id)
     if (!existingGoal) {
@@ -81,7 +81,7 @@ export class SavingsGoalService {
     })
   }
 
-  async updateProgress(userId: string, id: string, amount: number) {
+  async updateProgress(userId: string, id: string, amount: number): Promise<SavingsGoal> {
     // Verificar que la meta existe y pertenece al usuario
     const existingGoal = await this.findById(userId, id)
     if (!existingGoal) {
@@ -96,7 +96,7 @@ export class SavingsGoalService {
     })
   }
 
-  async addProgress(userId: string, id: string, amount: number) {
+  async addProgress(userId: string, id: string, amount: number): Promise<SavingsGoal> {
     // Verificar que la meta existe y pertenece al usuario
     const existingGoal = await this.findById(userId, id)
     if (!existingGoal) {
@@ -114,7 +114,7 @@ export class SavingsGoalService {
     })
   }
 
-  async getProgress(userId: string, id: string) {
+  async getProgress(userId: string, id: string): Promise<{ goal: SavingsGoal; progress: number; remaining: number; daysRemaining: number; dailyTarget: number }> {
     const goal = await this.findById(userId, id)
     if (!goal) {
       throw new Error('Savings goal not found')
@@ -134,7 +134,7 @@ export class SavingsGoalService {
     }
   }
 
-  async getSummary(userId: string) {
+  async getSummary(userId: string): Promise<{ totalGoals: number; totalTarget: number; totalCurrent: number; totalProgress: number; byTimeframe: { short: number; medium: number; long: number }; byPriority: { low: number; medium: number; high: number } }> {
     const goals = await this.findMany(userId)
     
     const totalTargetAmount = goals.reduce((sum, goal) => sum + goal.targetAmount.toNumber(), 0)
@@ -174,7 +174,7 @@ export class SavingsGoalService {
     }
   }
 
-  async search(userId: string, query: string) {
+  async search(userId: string, query: string): Promise<SavingsGoal[]> {
     return prisma.savingsGoal.findMany({
       where: {
         userId,

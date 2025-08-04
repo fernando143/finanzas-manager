@@ -1,5 +1,5 @@
 import { prisma } from './database.service'
-import { Expense, Prisma } from '../generated/prisma'
+import { Prisma } from '../generated/prisma'
 import { z } from 'zod'
 
 // Schemas de validación
@@ -15,7 +15,7 @@ const ExpenseCreateSchema = z.object({
 const ExpenseUpdateSchema = ExpenseCreateSchema.partial()
 
 export class ExpenseService {
-  async create(userId: string, data: z.infer<typeof ExpenseCreateSchema>) {
+  async create(userId: string, data: z.infer<typeof ExpenseCreateSchema>): Promise<Expense> {
     // Validar datos
     const validatedData = ExpenseCreateSchema.parse(data)
     
@@ -52,7 +52,7 @@ export class ExpenseService {
     take?: number
     where?: Prisma.ExpenseWhereInput
     orderBy?: Prisma.ExpenseOrderByWithRelationInput
-  }) {
+  }): Promise<(Expense & { category: { id: string; name: string; type: string; parentId: string | null; userId: string | null; createdAt: Date; updatedAt: Date } })[]> {
     return prisma.expense.findMany({
       where: {
         userId,
@@ -67,7 +67,7 @@ export class ExpenseService {
     })
   }
 
-  async findById(userId: string, id: string) {
+  async findById(userId: string, id: string): Promise<(Expense & { category: { id: string; name: string; type: string; parentId: string | null; userId: string | null; createdAt: Date; updatedAt: Date } }) | null> {
     return prisma.expense.findFirst({
       where: { id, userId },
       include: {
@@ -76,7 +76,7 @@ export class ExpenseService {
     })
   }
 
-  async update(userId: string, id: string, data: z.infer<typeof ExpenseUpdateSchema>) {
+  async update(userId: string, id: string, data: z.infer<typeof ExpenseUpdateSchema>): Promise<Expense> {
     const validatedData = ExpenseUpdateSchema.parse(data)
     
     // Verificar que el gasto existe y pertenece al usuario
@@ -115,7 +115,7 @@ export class ExpenseService {
     })
   }
 
-  async delete(userId: string, id: string) {
+  async delete(userId: string, id: string): Promise<Expense> {
     // Verificar que el gasto existe y pertenece al usuario
     const existingExpense = await this.findById(userId, id)
     if (!existingExpense) {
@@ -127,7 +127,7 @@ export class ExpenseService {
     })
   }
 
-  async count(userId: string, where?: Prisma.ExpenseWhereInput) {
+  async count(userId: string, where?: Prisma.ExpenseWhereInput): Promise<number> {
     return prisma.expense.count({
       where: {
         userId,
@@ -136,7 +136,7 @@ export class ExpenseService {
     })
   }
 
-  async aggregate(userId: string, where?: Prisma.ExpenseWhereInput) {
+  async aggregate(userId: string, where?: Prisma.ExpenseWhereInput): Promise<{ _sum: { amount: number | null }; _avg: { amount: number | null }; _count: number }> {
     return prisma.expense.aggregate({
       where: {
         userId,
@@ -153,7 +153,7 @@ export class ExpenseService {
   }
 
   // Buscar gastos por texto
-  async search(userId: string, query: string) {
+  async search(userId: string, query: string): Promise<(Expense & { category: { id: string; name: string; type: string; parentId: string | null; userId: string | null; createdAt: Date; updatedAt: Date } })[]> {
     return prisma.expense.findMany({
       where: {
         userId,
@@ -170,7 +170,7 @@ export class ExpenseService {
   }
 
   // Obtener gastos próximos a vencer
-  async findUpcoming(userId: string, days: number = 7) {
+  async findUpcoming(userId: string, days = 7): Promise<(Expense & { category: { id: string; name: string; type: string; parentId: string | null; userId: string | null; createdAt: Date; updatedAt: Date } })[]> {
     const futureDate = new Date()
     futureDate.setDate(futureDate.getDate() + days)
 
@@ -193,7 +193,7 @@ export class ExpenseService {
   }
 
   // Obtener gastos vencidos
-  async findOverdue(userId: string) {
+  async findOverdue(userId: string): Promise<(Expense & { category: { id: string; name: string; type: string; parentId: string | null; userId: string | null; createdAt: Date; updatedAt: Date } })[]> {
     return prisma.expense.findMany({
       where: {
         userId,

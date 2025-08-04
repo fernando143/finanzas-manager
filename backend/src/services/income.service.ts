@@ -1,5 +1,5 @@
 import { prisma } from './database.service'
-import { Income, Prisma } from '../generated/prisma'
+import { Prisma } from '../generated/prisma'
 import { z } from 'zod'
 
 // Schemas de validación
@@ -16,7 +16,7 @@ const IncomeCreateSchema = z.object({
 const IncomeUpdateSchema = IncomeCreateSchema.partial()
 
 export class IncomeService {
-  async create(userId: string, data: z.infer<typeof IncomeCreateSchema>) {
+  async create(userId: string, data: z.infer<typeof IncomeCreateSchema>): Promise<Income> {
     // Validar datos
     const validatedData = IncomeCreateSchema.parse(data)
     
@@ -54,7 +54,7 @@ export class IncomeService {
     take?: number
     where?: Prisma.IncomeWhereInput
     orderBy?: Prisma.IncomeOrderByWithRelationInput
-  }) {
+  }): Promise<(Income & { category: { id: string; name: string; type: string; parentId: string | null; userId: string | null; createdAt: Date; updatedAt: Date } })[]> {
     return prisma.income.findMany({
       where: {
         userId,
@@ -69,7 +69,7 @@ export class IncomeService {
     })
   }
 
-  async findById(userId: string, id: string) {
+  async findById(userId: string, id: string): Promise<(Income & { category: { id: string; name: string; type: string; parentId: string | null; userId: string | null; createdAt: Date; updatedAt: Date } }) | null> {
     return prisma.income.findFirst({
       where: { id, userId },
       include: {
@@ -78,7 +78,7 @@ export class IncomeService {
     })
   }
 
-  async update(userId: string, id: string, data: z.infer<typeof IncomeUpdateSchema>) {
+  async update(userId: string, id: string, data: z.infer<typeof IncomeUpdateSchema>): Promise<Income> {
     const validatedData = IncomeUpdateSchema.parse(data)
     
     // Verificar que el ingreso existe y pertenece al usuario
@@ -118,7 +118,7 @@ export class IncomeService {
     })
   }
 
-  async delete(userId: string, id: string) {
+  async delete(userId: string, id: string): Promise<Income> {
     // Verificar que el ingreso existe y pertenece al usuario
     const existingIncome = await this.findById(userId, id)
     if (!existingIncome) {
@@ -130,7 +130,7 @@ export class IncomeService {
     })
   }
 
-  async count(userId: string, where?: Prisma.IncomeWhereInput) {
+  async count(userId: string, where?: Prisma.IncomeWhereInput): Promise<number> {
     return prisma.income.count({
       where: {
         userId,
@@ -139,7 +139,7 @@ export class IncomeService {
     })
   }
 
-  async aggregate(userId: string, where?: Prisma.IncomeWhereInput) {
+  async aggregate(userId: string, where?: Prisma.IncomeWhereInput): Promise<{ _sum: { amount: number | null }; _avg: { amount: number | null }; _count: number }> {
     return prisma.income.aggregate({
       where: {
         userId,
@@ -156,7 +156,7 @@ export class IncomeService {
   }
 
   // Buscar ingresos por texto
-  async search(userId: string, query: string) {
+  async search(userId: string, query: string): Promise<(Income & { category: { id: string; name: string; type: string; parentId: string | null; userId: string | null; createdAt: Date; updatedAt: Date } })[]> {
     return prisma.income.findMany({
       where: {
         userId,

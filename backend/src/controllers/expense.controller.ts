@@ -2,6 +2,7 @@ import { Response } from 'express'
 import { z } from 'zod'
 import { expenseService } from '../services'
 import { AuthenticatedRequest, asyncHandler } from '../middleware'
+import { ExpenseWhereClause } from '../types'
 
 // Helper function to validate GMT-3 noon dates (15:00 UTC)
 const validateGMT3NoonDate = (dateString: string): boolean => {
@@ -53,7 +54,7 @@ export const ExpenseController = {
     const { page, limit, category, frequency, status, dateFrom, dateTo, sort, order } = query
     
     // Build where clause
-    const whereClause: any = {}
+    const whereClause: ExpenseWhereClause = {}
     if (category) whereClause.categoryId = category
     if (frequency) whereClause.frequency = frequency
     if (status) whereClause.status = status
@@ -202,10 +203,10 @@ export const ExpenseController = {
     const { category, frequency, status, dateFrom, dateTo } = req.query
     
     // Build where clause
-    const whereClause: any = {}
+    const whereClause: ExpenseWhereClause = {}
     if (category) whereClause.categoryId = category as string
-    if (frequency) whereClause.frequency = frequency as string
-    if (status) whereClause.status = status as string
+    if (frequency) whereClause.frequency = frequency as 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY' | 'ANNUAL' | 'ONE_TIME'
+    if (status) whereClause.status = status as 'PENDING' | 'PAID' | 'OVERDUE' | 'PARTIAL'
     if (dateFrom || dateTo) {
       whereClause.dueDate = {}
       if (dateFrom) whereClause.dueDate.gte = new Date(dateFrom as string)
@@ -230,10 +231,10 @@ export const ExpenseController = {
     const { category, frequency, status } = req.query
     
     // Build where clause
-    const whereClause: any = {}
+    const whereClause: ExpenseWhereClause = {}
     if (category) whereClause.categoryId = category as string
-    if (frequency) whereClause.frequency = frequency as string
-    if (status) whereClause.status = status as string
+    if (frequency) whereClause.frequency = frequency as 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY' | 'ANNUAL' | 'ONE_TIME'
+    if (status) whereClause.status = status as 'PENDING' | 'PAID' | 'OVERDUE' | 'PARTIAL'
     
     const count = await expenseService.count(userId, whereClause)
     

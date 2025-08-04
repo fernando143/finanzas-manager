@@ -106,7 +106,7 @@ export const AuthController = {
 
   // DELETE /api/auth/account
   deleteAccount: asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const { password } = req.body
+    const { password } = req.body as { password?: string }
     const userId = req.user!.userId
     
     if (!password || typeof password !== 'string') {
@@ -126,7 +126,7 @@ export const AuthController = {
   }),
 
   // POST /api/auth/logout
-  logout: asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  logout: asyncHandler((req: AuthenticatedRequest, res: Response) => {
     // En JWT stateless, el logout se maneja en el cliente
     // Aquí podríamos agregar el token a una blacklist si fuera necesario
     
