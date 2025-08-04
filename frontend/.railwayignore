@@ -1,0 +1,36 @@
+# Development files
+*.md
+README.md
+CLAUDE.md
+
+# Testing
+tests/
+test/
+*.test.*
+*.spec.*
+playwright.config.ts
+vitest.config.ts
+
+# Development tools
+.vscode/
+.idea/
+*.log
+
+# Source maps (optional - include if you want debugging in production)
+# *.map
+
+# Playwright browsers
+/playwright-report/
+/test-results/
+
+# Environment files (ensure your production env vars are set in Railway)
+.env.local
+.env.development
+.env.test
+
+# Git
+.git/
+.gitignore
+
+# macOS
+.DS_Store

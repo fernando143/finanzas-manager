@@ -1,0 +1,23 @@
+[build]
+builder = "nixpacks"
+
+[build.nixpacks]
+# Specify Node.js version that satisfies vite@7.x and react-router-dom@7.x requirements
+# vite@7.0.4 requires: '^20.19.0 || >=22.12.0'
+# react-router-dom@7.7.1 requires: '>=20.0.0'
+nodejsVersion = "22.14.0"
+
+[build.commands]
+# Install all workspace dependencies from root
+install = "cd .. && npm ci"
+# Build the frontend workspace
+build = "npm run build"
+
+[deploy]
+# Serve built files (Railway will detect this is a static site)
+startCommand = "npm run preview"
+
+[deploy.healthcheck]
+# Health check endpoint for deployment verification
+path = "/"
+port = 4173
