@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: fianzas_db
+    environment:
+      POSTGRES_USER: fianzas_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fianzas_password}
+      POSTGRES_DB: fianzas_manager
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+      - ./database/backups:/backups
+    networks:
+      - fianzas_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fianzas_user -d fianzas_manager"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  adminer:
+    image: adminer:4.8.1
+    container_name: fianzas_adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - fianzas_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  fianzas_network:
+    driver: bridge

@@ -1,0 +1,52 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "test": "NODE_ENV=test jest --detectOpenHandles --forceExit",
+    "test:watch": "NODE_ENV=test jest --watch --detectOpenHandles",
+    "test:coverage": "NODE_ENV=test jest --coverage --detectOpenHandles --forceExit",
+    "test:setup": "DATABASE_URL=\"postgresql://fianzas_user:fianzas_secure_password_2024@localhost:5433/fianzas_test\" npx prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@prisma/client": "^6.13.0",
+    "axios": "^1.11.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^6.13.0",
+    "zod": "^4.0.14"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.1.0",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.0.5",
+    "jest-environment-node": "^30.0.5",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2"
+  }
+}
