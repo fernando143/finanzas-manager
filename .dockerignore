@@ -1,0 +1,53 @@
+# Node modules
+**/node_modules
+**/.npm
+
+# Environment files
+**/.env
+**/.env.*
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+LICENSE
+
+# Test files
+**/tests
+**/test
+**/*.test.*
+**/*.spec.*
+
+# Build outputs
+**/dist
+**/build
+
+# Logs
+*.log
+**/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Generated files
+**/generated
+**/src/generated
+
+# Development files
+**/.eslintrc*
+**/jest.config.*
+**/tsconfig.json
+**/vitest.config.*
+
+# Temporary files
+*.tmp
+*.temp
