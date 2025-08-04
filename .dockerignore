@@ -45,7 +45,6 @@ Thumbs.db
 # Development files
 **/.eslintrc*
 **/jest.config.*
-**/tsconfig.json
 **/vitest.config.*
 
 # Temporary files
