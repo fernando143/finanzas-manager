@@ -1,5 +1,5 @@
 import { prisma } from './database.service'
-import { Prisma } from '../generated/prisma'
+import { SavingsGoal, Prisma } from '@prisma/client'
 import { z } from 'zod'
 
 // Schemas de validación
@@ -114,7 +114,7 @@ export class SavingsGoalService {
     })
   }
 
-  async getProgress(userId: string, id: string): Promise<{ goal: SavingsGoal; progress: number; remaining: number; daysRemaining: number; dailyTarget: number }> {
+  async getProgress(userId: string, id: string) {
     const goal = await this.findById(userId, id)
     if (!goal) {
       throw new Error('Savings goal not found')
@@ -134,41 +134,41 @@ export class SavingsGoalService {
     }
   }
 
-  async getSummary(userId: string): Promise<{ totalGoals: number; totalTarget: number; totalCurrent: number; totalProgress: number; byTimeframe: { short: number; medium: number; long: number }; byPriority: { low: number; medium: number; high: number } }> {
+  async getSummary(userId: string): Promise<{ totalGoals: number; totalTarget: number; totalCurrent: number; totalProgress: number; completed: number; overdue: number; byTimeframe: { short: number; medium: number; long: number }; byPriority: { low: number; medium: number; high: number } }> {
     const goals = await this.findMany(userId)
     
-    const totalTargetAmount = goals.reduce((sum, goal) => sum + goal.targetAmount.toNumber(), 0)
-    const totalCurrentAmount = goals.reduce((sum, goal) => sum + goal.currentAmount.toNumber(), 0)
+    const totalTargetAmount = goals.reduce((sum: number, goal: SavingsGoal) => sum + goal.targetAmount.toNumber(), 0)
+    const totalCurrentAmount = goals.reduce((sum: number, goal: SavingsGoal) => sum + goal.currentAmount.toNumber(), 0)
     const totalProgress = totalTargetAmount > 0 ? (totalCurrentAmount / totalTargetAmount) * 100 : 0
     
-    const completed = goals.filter(goal => 
+    const completed = goals.filter((goal: SavingsGoal) => 
       goal.currentAmount.toNumber() >= goal.targetAmount.toNumber()
     ).length
     
-    const overdue = goals.filter(goal => 
+    const overdue = goals.filter((goal: SavingsGoal) => 
       new Date() > goal.targetDate && 
       goal.currentAmount.toNumber() < goal.targetAmount.toNumber()
     ).length
 
     const byPriority = {
-      high: goals.filter(g => g.priority === 'HIGH').length,
-      medium: goals.filter(g => g.priority === 'MEDIUM').length,
-      low: goals.filter(g => g.priority === 'LOW').length,
+      high: goals.filter((g: SavingsGoal) => g.priority === 'HIGH').length,
+      medium: goals.filter((g: SavingsGoal) => g.priority === 'MEDIUM').length,
+      low: goals.filter((g: SavingsGoal) => g.priority === 'LOW').length,
     }
 
     const byTimeframe = {
-      short: goals.filter(g => g.timeframe === 'SHORT').length,
-      medium: goals.filter(g => g.timeframe === 'MEDIUM').length,
-      long: goals.filter(g => g.timeframe === 'LONG').length,
+      short: goals.filter((g: SavingsGoal) => g.timeframe === 'SHORT').length,
+      medium: goals.filter((g: SavingsGoal) => g.timeframe === 'MEDIUM').length,
+      long: goals.filter((g: SavingsGoal) => g.timeframe === 'LONG').length,
     }
 
     return {
-      total: goals.length,
+      totalGoals: goals.length,
+      totalTarget: totalTargetAmount,
+      totalCurrent: totalCurrentAmount,
+      totalProgress: Math.round(totalProgress * 100) / 100,
       completed,
       overdue,
-      totalTargetAmount,
-      totalCurrentAmount,
-      totalProgress: Math.round(totalProgress * 100) / 100,
       byPriority,
       byTimeframe,
     }

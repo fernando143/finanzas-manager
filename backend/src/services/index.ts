@@ -34,4 +34,4 @@ export type {
   PaymentStrategy,
   AccountType,
   Prisma
-} from '../generated/prisma'
+} from '@prisma/client'

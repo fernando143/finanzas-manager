@@ -1,5 +1,5 @@
 import { prisma } from './database.service'
-import { Category, Prisma } from '../generated/prisma'
+import { Category, Prisma } from '@prisma/client'
 import { z } from 'zod'
 
 // Schemas de validación
@@ -213,7 +213,7 @@ export class CategoryService {
     })
   }
 
-  async getHierarchy(userId: string, type?: 'INCOME' | 'EXPENSE', includeGlobal = true): Promise<(Category & { parent: Category | null; children: (Category & { parent: Category | null; children: Category[] })[] })[]> {
+  async getHierarchy(userId: string, type?: 'INCOME' | 'EXPENSE', includeGlobal = true) {
     const whereClause: Prisma.CategoryWhereInput = {
       OR: [
         { userId: userId },

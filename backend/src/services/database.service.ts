@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma'
+import { PrismaClient } from '@prisma/client'
 
 // Configuración del cliente Prisma
 const prisma = new PrismaClient({
@@ -7,7 +7,7 @@ const prisma = new PrismaClient({
 })
 
 // Middleware para logging
-prisma.$use(async (params, next) => {
+prisma.$use(async (params: any, next: any) => {
   const before = Date.now()
   const result = await next(params)
   const after = Date.now()

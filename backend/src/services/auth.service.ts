@@ -1,5 +1,5 @@
 import { prisma } from './database.service'
-import { User } from '../generated/prisma'
+import { User } from '@prisma/client'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
@@ -27,12 +27,14 @@ interface TokenPayload {
   email: string
 }
 
+type UserWithoutPassword = Omit<User, 'password'>
+
 export class AuthService {
   private readonly JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
   private readonly JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d'
   private readonly BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '12')
 
-  async register(data: z.infer<typeof RegisterSchema>): Promise<{ user: User; token: string }> {
+  async register(data: z.infer<typeof RegisterSchema>): Promise<{ user: UserWithoutPassword; token: string }> {
     const validatedData = RegisterSchema.parse(data)
 
     // Verificar si el usuario ya existe
@@ -83,7 +85,7 @@ export class AuthService {
     }
   }
 
-  async login(data: z.infer<typeof LoginSchema>): Promise<{ user: User; token: string }> {
+  async login(data: z.infer<typeof LoginSchema>): Promise<{ user: UserWithoutPassword; token: string }> {
     const validatedData = LoginSchema.parse(data)
 
     // Buscar usuario
@@ -148,7 +150,7 @@ export class AuthService {
     return { message: 'Password changed successfully' }
   }
 
-  async updateProfile(userId: string, data: { name?: string; email?: string }): Promise<User> {
+  async updateProfile(userId: string, data: { name?: string; email?: string }): Promise<UserWithoutPassword> {
     const updateData: any = {}
 
     if (data.name) {
@@ -183,7 +185,7 @@ export class AuthService {
     return updatedUser
   }
 
-  async getUserById(userId: string): Promise<User | null> {
+  async getUserById(userId: string): Promise<UserWithoutPassword | null> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -232,6 +234,10 @@ export class AuthService {
 
   async refreshToken(userId: string): Promise<{ token: string }> {
     const user = await this.getUserById(userId)
+    
+    if (!user) {
+      throw new Error('User not found')
+    }
     
     const token = this.generateToken({ 
       userId: user.id, 

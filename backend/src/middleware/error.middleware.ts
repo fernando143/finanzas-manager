@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { ZodError } from 'zod'
-import { Prisma } from '../generated/prisma'
+import { Prisma } from '@prisma/client'
 
 export interface AppError extends Error {
   statusCode?: number
@@ -12,7 +12,7 @@ export const errorHandler = (
   req: Request,
   res: Response,
   _next: NextFunction
-): void => {
+) => {
   console.error('Error occurred:', {
     message: error.message,
     stack: error.stack,

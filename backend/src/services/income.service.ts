@@ -1,5 +1,5 @@
 import { prisma } from './database.service'
-import { Prisma } from '../generated/prisma'
+import { Income, Prisma } from '@prisma/client'
 import { z } from 'zod'
 
 // Schemas de validación
@@ -139,7 +139,7 @@ export class IncomeService {
     })
   }
 
-  async aggregate(userId: string, where?: Prisma.IncomeWhereInput): Promise<{ _sum: { amount: number | null }; _avg: { amount: number | null }; _count: number }> {
+  async aggregate(userId: string, where?: Prisma.IncomeWhereInput) {
     return prisma.income.aggregate({
       where: {
         userId,
