@@ -3,11 +3,22 @@ import { PlusIcon, PencilIcon, TrashIcon, ExclamationTriangleIcon } from '@heroi
 import type { Expense } from '../../../types/api'
 import { ExpenseForm } from './ExpenseForm.component'
 import { useExpenses } from '../../../shared/hooks'
+import { Pagination } from '../../../shared/ui/components'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 export const ExpenseList = () => {
-  const { expenses, loading, error, createExpense, updateExpense, deleteExpense } = useExpenses()
+  const { 
+    expenses, 
+    loading, 
+    error, 
+    pagination,
+    createExpense, 
+    updateExpense, 
+    deleteExpense,
+    setPage,
+    currentPage
+  } = useExpenses()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined)
 
@@ -229,6 +240,18 @@ export const ExpenseList = () => {
           </div>
         </div>
       </div>
+
+      {/* Pagination */}
+      {pagination && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={pagination.pages}
+          totalItems={pagination.total}
+          itemsPerPage={pagination.limit}
+          onPageChange={setPage}
+          loading={loading}
+        />
+      )}
 
       <ExpenseForm
         expense={editingExpense}

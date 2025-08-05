@@ -243,4 +243,35 @@ export const ExpenseController = {
       data: { count },
     })
   }),
+
+  // GET /api/expenses/dashboard/current-month
+  getDashboardCurrentMonth: asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user!.userId
+    
+    // Get current month date range
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    
+    // Set times for GMT-3 noon (15:00 UTC)
+    startOfMonth.setUTCHours(15, 0, 0, 0)
+    endOfMonth.setUTCHours(15, 0, 0, 0)
+    
+    const whereClause: ExpenseWhereClause = {
+      dueDate: {
+        gte: startOfMonth,
+        lte: endOfMonth
+      }
+    }
+    
+    const expenses = await expenseService.findMany(userId, {
+      where: whereClause,
+      orderBy: { dueDate: 'asc' },
+    })
+    
+    res.status(200).json({
+      success: true,
+      data: { expenses },
+    })
+  }),
 }

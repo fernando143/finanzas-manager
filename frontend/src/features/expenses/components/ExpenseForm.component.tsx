@@ -57,8 +57,8 @@ export const ExpenseForm = ({ expense, isOpen, onClose, onSave }: ExpenseFormPro
       status: formData.status
     }
     
+    // Only call onSave - let the parent component handle closing after success
     onSave(expenseData)
-    onClose()
   }
 
   const handleChange = (field: string, value: any) => {

@@ -2,47 +2,77 @@ import { useState, useEffect, useCallback } from 'react'
 import { apiClient } from '../services/api/client.service'
 import type { Income } from '../../types/api'
 
+interface PaginationData {
+  page: number
+  limit: number
+  total: number
+  pages: number
+}
+
+interface UseIncomesParams {
+  page?: number
+  limit?: number
+}
+
 interface UseIncomesReturn {
   incomes: Income[]
   loading: boolean
   error: string | null
-  fetchIncomes: () => Promise<void>
+  pagination: PaginationData | null
+  fetchIncomes: (params?: UseIncomesParams) => Promise<void>
   createIncome: (income: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => Promise<Income | null>
   updateIncome: (id: string, income: Partial<Omit<Income, 'id' | 'userId' | 'createdAt'>>) => Promise<Income | null>
   deleteIncome: (id: string) => Promise<boolean>
   refreshIncomes: () => Promise<void>
+  setPage: (page: number) => void
+  currentPage: number
 }
 
 export const useIncomes = (): UseIncomesReturn => {
   const [incomes, setIncomes] = useState<Income[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [pagination, setPagination] = useState<PaginationData | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
 
-  const fetchIncomes = useCallback(async () => {
+  const fetchIncomes = useCallback(async (params?: UseIncomesParams) => {
     setLoading(true)
     setError(null)
 
     try {
       console.log('🔍 Fetching incomes...')
-      const response = await apiClient.get<{ incomes: Income[] } >('/incomes')
+      const queryParams = new URLSearchParams()
+      const page = params?.page || currentPage
+      const limit = params?.limit || 10
+      
+      queryParams.append('page', page.toString())
+      queryParams.append('limit', limit.toString())
+      
+      const response = await apiClient.get<{ incomes: Income[], pagination: PaginationData }>(`/incomes?${queryParams}`)
       console.log('📥 Fetch incomes response:', response)
 
       if (response.success && response.data) {
         console.log('✅ Incomes fetched successfully:', response.data.incomes.length, 'items')
-        setIncomes(response.data.incomes )
+        setIncomes(response.data.incomes)
+        setPagination(response.data.pagination)
+        if (params?.page) {
+          setCurrentPage(params.page)
+        }
       } else {
         console.error('❌ Failed to fetch incomes:', response.error)
         setError(response.error || 'Error al obtener ingresos')
         setIncomes([])
+        setPagination(null)
       }
     } catch (err) {
       console.error('💥 Exception while fetching incomes:', err)
       setError('Error de conexión al obtener ingresos')
       setIncomes([])
+      setPagination(null)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [currentPage])
 
   const createIncome = useCallback(async (incomeData: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Income | null> => {
     setLoading(true)
@@ -128,20 +158,26 @@ export const useIncomes = (): UseIncomesReturn => {
     await fetchIncomes()
   }, [fetchIncomes])
 
+  const setPage = useCallback((page: number) => {
+    fetchIncomes({ page })
+  }, [fetchIncomes])
+
   // Auto-fetch on mount
   useEffect(() => {
     fetchIncomes()
   }, [fetchIncomes])
 
-
   return {
     incomes,
     loading,
     error,
+    pagination,
     fetchIncomes,
     createIncome,
     updateIncome,
     deleteIncome,
-    refreshIncomes
+    refreshIncomes,
+    setPage,
+    currentPage
   }
 }

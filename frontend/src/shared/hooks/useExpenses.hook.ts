@@ -2,43 +2,73 @@ import { useState, useEffect, useCallback } from 'react'
 import { apiClient } from '../services/api/client.service'
 import type { Expense } from '../../types/api'
 
+interface PaginationData {
+  page: number
+  limit: number
+  total: number
+  pages: number
+}
+
+interface UseExpensesParams {
+  page?: number
+  limit?: number
+}
+
 interface UseExpensesReturn {
   expenses: Expense[]
   loading: boolean
   error: string | null
-  fetchExpenses: () => Promise<void>
+  pagination: PaginationData | null
+  fetchExpenses: (params?: UseExpensesParams) => Promise<void>
   createExpense: (expense: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => Promise<Expense | null>
   updateExpense: (id: string, expense: Partial<Omit<Expense, 'id' | 'userId' | 'createdAt'>>) => Promise<Expense | null>
   deleteExpense: (id: string) => Promise<boolean>
   markAsPaid: (id: string) => Promise<boolean>
   refreshExpenses: () => Promise<void>
+  setPage: (page: number) => void
+  currentPage: number
 }
 
 export const useExpenses = (): UseExpensesReturn => {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [pagination, setPagination] = useState<PaginationData | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
 
-  const fetchExpenses = useCallback(async () => {
+  const fetchExpenses = useCallback(async (params?: UseExpensesParams) => {
     setLoading(true)
     setError(null)
 
     try {
-      const response = await apiClient.get<{expenses: Expense[]}>('/expenses')
-      console.log('expensas response', response)
+      const queryParams = new URLSearchParams()
+      const page = params?.page || currentPage
+      const limit = params?.limit || 10
+      
+      queryParams.append('page', page.toString())
+      queryParams.append('limit', limit.toString())
+      
+      const response = await apiClient.get<{expenses: Expense[], pagination: PaginationData}>(`/expenses?${queryParams}`)
+      console.log('expenses response', response)
       if (response.success && response.data) {
-        setExpenses(response.data.expenses )
+        setExpenses(response.data.expenses)
+        setPagination(response.data.pagination)
+        if (params?.page) {
+          setCurrentPage(params.page)
+        }
       } else {
         setError(response.error || 'Error al obtener gastos')
         setExpenses([])
+        setPagination(null)
       }
     } catch (err) {
       setError('Error de conexión al obtener gastos')
       setExpenses([])
+      setPagination(null)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [currentPage])
 
   const createExpense = useCallback(async (expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Expense | null> => {
     setLoading(true)
@@ -119,6 +149,10 @@ export const useExpenses = (): UseExpensesReturn => {
     await fetchExpenses()
   }, [fetchExpenses])
 
+  const setPage = useCallback((page: number) => {
+    fetchExpenses({ page })
+  }, [fetchExpenses])
+
   // Auto-fetch on mount
   useEffect(() => {
     fetchExpenses()
@@ -128,11 +162,14 @@ export const useExpenses = (): UseExpensesReturn => {
     expenses,
     loading,
     error,
+    pagination,
     fetchExpenses,
     createExpense,
     updateExpense,
     deleteExpense,
     markAsPaid,
-    refreshExpenses
+    refreshExpenses,
+    setPage,
+    currentPage
   }
 }

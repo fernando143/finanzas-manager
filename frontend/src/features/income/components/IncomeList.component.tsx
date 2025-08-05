@@ -3,11 +3,22 @@ import { PlusIcon, PencilIcon, TrashIcon, ExclamationTriangleIcon } from '@heroi
 import type { Income } from '../../../types/api'
 import { IncomeForm } from './IncomeForm.component'
 import { useIncomes } from '../../../shared/hooks'
+import { Pagination } from '../../../shared/ui/components'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 export const IncomeList = () => {
-  const { incomes, loading, error, createIncome, updateIncome, deleteIncome } = useIncomes()
+  const { 
+    incomes, 
+    loading, 
+    error, 
+    pagination,
+    createIncome, 
+    updateIncome, 
+    deleteIncome,
+    setPage,
+    currentPage
+  } = useIncomes()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingIncome, setEditingIncome] = useState<Income | undefined>(undefined)
 
@@ -204,6 +215,18 @@ export const IncomeList = () => {
           </div>
         </div>
       </div>
+
+      {/* Pagination */}
+      {pagination && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={pagination.pages}
+          totalItems={pagination.total}
+          itemsPerPage={pagination.limit}
+          onPageChange={setPage}
+          loading={loading}
+        />
+      )}
 
       <IncomeForm
         income={editingIncome}

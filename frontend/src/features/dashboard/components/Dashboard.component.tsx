@@ -6,7 +6,7 @@ import {
   CalendarDaysIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline'
-import { useIncomes, useExpenses } from '../../../shared/hooks'
+import { useDashboardData } from '../../../shared/hooks'
 import { format, isAfter, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { FinancialChart } from './FinancialChart/FinancialChart.component'
@@ -20,11 +20,7 @@ interface DashboardStats {
 }
 
 export const Dashboard = () => {
-  const { incomes, loading: incomesLoading, error: incomesError } = useIncomes()
-  const { expenses, loading: expensesLoading, error: expensesError } = useExpenses()
-
-  const loading = incomesLoading || expensesLoading
-  const error = incomesError || expensesError
+  const { incomes, expenses, loading, error } = useDashboardData()
 
   // Calculate dashboard statistics from real data
   const stats = useMemo((): DashboardStats => {
