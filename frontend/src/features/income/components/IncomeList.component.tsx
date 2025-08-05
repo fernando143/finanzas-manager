@@ -6,6 +6,7 @@ import { useIncomes } from '../../../shared/hooks'
 import { Pagination } from '../../../shared/ui/components'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { formatCurrencyARS } from '../../../shared/utils'
 
 export const IncomeList = () => {
   const { 
@@ -58,12 +59,6 @@ export const IncomeList = () => {
     }
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN'
-    }).format(amount)
-  }
 
   const formatFrequency = (frequency: string) => {
     switch (frequency) {
@@ -170,7 +165,7 @@ export const IncomeList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-green-600">
-                          {formatCurrency(income.amount)}
+                          {formatCurrencyARS(income.amount)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

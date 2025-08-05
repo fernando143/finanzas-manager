@@ -10,6 +10,7 @@ import { useDashboardData } from '../../../shared/hooks'
 import { format, isAfter, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { FinancialChart } from './FinancialChart/FinancialChart.component'
+import { formatCurrencyARS } from '../../../shared/utils'
 
 interface DashboardStats {
   monthlyIncome: number
@@ -58,12 +59,6 @@ export const Dashboard = () => {
     return allTransactions.slice(0, 5)
   }, [incomes, expenses])
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN'
-    }).format(amount)
-  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -143,7 +138,7 @@ export const Dashboard = () => {
                     Ingresos Mensuales
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {formatCurrency(stats.monthlyIncome)}
+                    {formatCurrencyARS(stats.monthlyIncome)}
                   </dd>
                 </dl>
               </div>
@@ -163,7 +158,7 @@ export const Dashboard = () => {
                     Gastos Mensuales
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {formatCurrency(stats.monthlyExpenses)}
+                    {formatCurrencyARS(stats.monthlyExpenses)}
                   </dd>
                 </dl>
               </div>
@@ -183,7 +178,7 @@ export const Dashboard = () => {
                     Balance Mensual
                   </dt>
                   <dd className={`text-lg font-medium ${stats.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {formatCurrency(stats.balance)}
+                    {formatCurrencyARS(stats.balance)}
                   </dd>
                 </dl>
               </div>
@@ -235,7 +230,7 @@ export const Dashboard = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium text-gray-900">
-                      {formatCurrency(expense.amount)}
+                      {formatCurrencyARS(expense.amount)}
                     </span>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(expense.status)}`}>
                       {getStatusText(expense.status)}
@@ -271,7 +266,7 @@ export const Dashboard = () => {
                     </div>
                   </div>
                   <span className={`text-sm font-medium ${'type' in transaction && transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                    {'type' in transaction && transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                    {'type' in transaction && transaction.type === 'income' ? '+' : '-'}{formatCurrencyARS(transaction.amount)}
                   </span>
                 </div>
               ))}

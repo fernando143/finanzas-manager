@@ -3,6 +3,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import type { Income } from '../../../types/api'
 import { useCategories } from '../../../shared/hooks'
 import { createLocalDate, fromApiDateString } from '../../../shared/utils'
+import { CurrencyInput } from '../../../shared/ui/components'
 
 interface IncomeFormProps {
   income?: Income
@@ -108,18 +109,12 @@ export const IncomeForm = ({ income, isOpen, onClose, onSave }: IncomeFormProps)
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Monto
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                required
+              <CurrencyInput
                 value={formData.amount}
-                onChange={(e) => handleChange('amount', parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="0.00"
+                onChange={(value) => handleChange('amount', value)}
+                required
+                label="Monto"
+                placeholder="$ 0,00"
               />
             </div>
 

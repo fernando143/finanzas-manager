@@ -11,6 +11,7 @@ import { useExpenses } from "../../../shared/hooks";
 import { Pagination } from "../../../shared/ui/components";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
+import { formatCurrencyARS } from "../../../shared/utils";
 
 export const ExpenseList = () => {
   const {
@@ -60,12 +61,6 @@ export const ExpenseList = () => {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("es-MX", {
-      style: "currency",
-      currency: "MXN",
-    }).format(amount);
-  };
 
   const formatFrequency = (frequency: string) => {
     switch (frequency.toUpperCase()) {
@@ -211,7 +206,7 @@ export const ExpenseList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-red-600">
-                          {formatCurrency(expense.amount)}
+                          {formatCurrencyARS(expense.amount)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
