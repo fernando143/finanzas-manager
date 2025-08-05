@@ -78,8 +78,8 @@ export const useExpenses = (): UseExpensesReturn => {
       const response = await apiClient.post<Expense>('/expenses', expenseData)
 
       if (response.success && response.data) {
-        // Optimistic update
-        setExpenses(prev => [response.data!, ...prev])
+        // Refetch to maintain consistency with server state
+        await fetchExpenses()
         return response.data
       } else {
         setError(response.error || 'Error al crear gasto')
@@ -91,7 +91,7 @@ export const useExpenses = (): UseExpensesReturn => {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [fetchExpenses])
 
   const updateExpense = useCallback(async (id: string, expenseData: Partial<Omit<Expense, 'id' | 'userId' | 'createdAt'>>): Promise<Expense | null> => {
     setLoading(true)
@@ -101,10 +101,8 @@ export const useExpenses = (): UseExpensesReturn => {
       const response = await apiClient.patch<Expense>(`/expenses/${id}`, expenseData)
 
       if (response.success && response.data) {
-        // Optimistic update
-        setExpenses(prev => prev.map(expense =>
-          expense.id === id ? response.data! : expense
-        ))
+        // Refetch to maintain consistency with server state
+        await fetchExpenses()
         return response.data
       } else {
         setError(response.error || 'Error al actualizar gasto')
@@ -116,7 +114,7 @@ export const useExpenses = (): UseExpensesReturn => {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [fetchExpenses])
 
   const deleteExpense = useCallback(async (id: string): Promise<boolean> => {
     setLoading(true)
@@ -126,8 +124,8 @@ export const useExpenses = (): UseExpensesReturn => {
       const response = await apiClient.delete(`/expenses/${id}`)
 
       if (response.success) {
-        // Optimistic update
-        setExpenses(prev => prev.filter(expense => expense.id !== id))
+        // Refetch to maintain consistency with server state
+        await fetchExpenses()
         return true
       } else {
         setError(response.error || 'Error al eliminar gasto')
@@ -139,7 +137,7 @@ export const useExpenses = (): UseExpensesReturn => {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [fetchExpenses])
 
   const markAsPaid = useCallback(async (id: string): Promise<boolean> => {
     return await updateExpense(id, { status: 'PAID' }) !== null

@@ -1,97 +1,118 @@
-import { useState } from 'react'
-import { PlusIcon, PencilIcon, TrashIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
-import type { Expense } from '../../../types/api'
-import { ExpenseForm } from './ExpenseForm.component'
-import { useExpenses } from '../../../shared/hooks'
-import { Pagination } from '../../../shared/ui/components'
-import { format, parseISO } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { useState } from "react";
+import {
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
+import type { Expense } from "../../../types/api";
+import { ExpenseForm } from "./ExpenseForm.component";
+import { useExpenses } from "../../../shared/hooks";
+import { Pagination } from "../../../shared/ui/components";
+import { format, parseISO } from "date-fns";
+import { es } from "date-fns/locale";
 
 export const ExpenseList = () => {
-  const { 
-    expenses, 
-    loading, 
-    error, 
+  const {
+    expenses,
+    loading,
+    error,
     pagination,
-    createExpense, 
-    updateExpense, 
+    createExpense,
+    updateExpense,
     deleteExpense,
     setPage,
-    currentPage
-  } = useExpenses()
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined)
+    currentPage,
+  } = useExpenses();
+  console.log("expenses", expenses);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | undefined>(
+    undefined,
+  );
 
-  const handleSaveExpense = async (expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => {
-    let success = false
-    
+  const handleSaveExpense = async (
+    expenseData: Omit<Expense, "id" | "userId" | "createdAt" | "updatedAt">,
+  ) => {
+    let success = false;
+
     if (editingExpense) {
-      const result = await updateExpense(editingExpense.id, expenseData)
-      success = result !== null
+      const result = await updateExpense(editingExpense.id, expenseData);
+      success = result !== null;
     } else {
-      const result = await createExpense(expenseData)
-      success = result !== null
+      const result = await createExpense(expenseData);
+      success = result !== null;
     }
 
     if (success) {
-      setEditingExpense(undefined)
-      setIsFormOpen(false)
+      setEditingExpense(undefined);
+      setIsFormOpen(false);
     }
-  }
+  };
 
   const handleEdit = (expense: Expense) => {
-    setEditingExpense(expense)
-    setIsFormOpen(true)
-  }
+    setEditingExpense(expense);
+    setIsFormOpen(true);
+  };
 
   const handleDelete = async (id: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este egreso?')) {
-      await deleteExpense(id)
+    if (confirm("¿Estás seguro de que quieres eliminar este egreso?")) {
+      await deleteExpense(id);
     }
-  }
+  };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN'
-    }).format(amount)
-  }
+    return new Intl.NumberFormat("es-MX", {
+      style: "currency",
+      currency: "MXN",
+    }).format(amount);
+  };
 
   const formatFrequency = (frequency: string) => {
     switch (frequency.toUpperCase()) {
-      case 'WEEKLY': return 'Semanal'
-      case 'BIWEEKLY': return 'Quincenal'
-      case 'MONTHLY': return 'Mensual'
-      case 'ANNUAL': return 'Anual'
-      case 'ONE_TIME': return 'Una vez'
-      default: return frequency
+      case "WEEKLY":
+        return "Semanal";
+      case "BIWEEKLY":
+        return "Quincenal";
+      case "MONTHLY":
+        return "Mensual";
+      case "ANNUAL":
+        return "Anual";
+      case "ONE_TIME":
+        return "Una vez";
+      default:
+        return frequency;
     }
-  }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status.toUpperCase()) {
-      case 'OVERDUE':
-        return 'text-red-600 bg-red-50'
-      case 'PENDING':
-        return 'text-yellow-600 bg-yellow-50'
-      case 'PAID':
-        return 'text-green-600 bg-green-50'
-      case 'PARTIAL':
-        return 'text-blue-600 bg-blue-50'
+      case "OVERDUE":
+        return "text-red-600 bg-red-50";
+      case "PENDING":
+        return "text-yellow-600 bg-yellow-50";
+      case "PAID":
+        return "text-green-600 bg-green-50";
+      case "PARTIAL":
+        return "text-blue-600 bg-blue-50";
       default:
-        return 'text-gray-600 bg-gray-50'
+        return "text-gray-600 bg-gray-50";
     }
-  }
+  };
 
   const getStatusText = (status: string) => {
     switch (status.toUpperCase()) {
-      case 'OVERDUE': return 'Vencido'
-      case 'PENDING': return 'Pendiente'
-      case 'PAID': return 'Pagado'
-      case 'PARTIAL': return 'Parcial'
-      default: return status
+      case "OVERDUE":
+        return "Vencido";
+      case "PENDING":
+        return "Pendiente";
+      case "PAID":
+        return "Pagado";
+      case "PARTIAL":
+        return "Parcial";
+      default:
+        return status;
     }
-  }
+  };
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
@@ -185,7 +206,7 @@ export const ExpenseList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">
-                          {expense.categoryId || 'Sin categoría'}
+                          {expense.categoryId || "Sin categoría"}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -200,12 +221,15 @@ export const ExpenseList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {expense.dueDate
-                          ? format(parseISO(expense.dueDate), 'dd MMM yyyy', { locale: es })
-                          : '-'
-                        }
+                          ? format(parseISO(expense.dueDate), "dd MMM yyyy", {
+                              locale: es,
+                            })
+                          : "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(expense.status)}`}>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(expense.status)}`}
+                        >
                           {getStatusText(expense.status)}
                         </span>
                       </td>
@@ -229,7 +253,10 @@ export const ExpenseList = () => {
                   ))}
                   {expenses.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                      <td
+                        colSpan={7}
+                        className="px-6 py-4 text-center text-gray-500"
+                      >
                         No hay egresos registrados
                       </td>
                     </tr>
@@ -257,14 +284,14 @@ export const ExpenseList = () => {
         expense={editingExpense}
         isOpen={isFormOpen}
         onClose={() => {
-          setIsFormOpen(false)
-          setEditingExpense(undefined)
+          setIsFormOpen(false);
+          setEditingExpense(undefined);
         }}
         onSave={handleSaveExpense}
       />
     </div>
-  )
-}
+  );
+};
 
 // Default export for lazy loading
-export default ExpenseList
+export default ExpenseList;
