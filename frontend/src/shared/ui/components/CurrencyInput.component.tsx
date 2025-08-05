@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react'
+import { forwardRef } from 'react'
 import { useCurrencyInput } from '../../hooks/useCurrencyInput.hook'
 
 interface CurrencyInputProps {

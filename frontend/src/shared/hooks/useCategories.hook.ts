@@ -80,13 +80,13 @@ export const useCategories = (): UseCategoriesReturn => {
         setError(response.error || 'Error al crear categoría')
         return null
       }
-    } catch (err) {
+    } catch (_) {
       setError('Error de conexión al crear categoría')
       return null
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user])
 
   const updateCategory = useCallback(async (id: string, categoryData: Partial<Omit<Category, 'id' | 'userId' | 'createdAt'>>): Promise<Category | null> => {
     if (!user) {
@@ -109,13 +109,13 @@ export const useCategories = (): UseCategoriesReturn => {
         setError(response.error || 'Error al actualizar categoría')
         return null
       }
-    } catch (err) {
+    } catch (_) {
       setError('Error de conexión al actualizar categoría')
       return null
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user])
 
   const deleteCategory = useCallback(async (id: string): Promise<boolean> => {
     if (!user) {
@@ -136,13 +136,13 @@ export const useCategories = (): UseCategoriesReturn => {
         setError(response.error || 'Error al eliminar categoría')
         return false
       }
-    } catch (err) {
+    } catch (_) {
       setError('Error de conexión al eliminar categoría')
       return false
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user])
 
   const refreshCategories = useCallback(async () => {
     await fetchCategories()

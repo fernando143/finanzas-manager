@@ -62,7 +62,7 @@ export const ExpenseForm = ({ expense, isOpen, onClose, onSave }: ExpenseFormPro
     onSave(expenseData)
   }
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 

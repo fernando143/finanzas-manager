@@ -123,7 +123,7 @@ export const useIncomes = (): UseIncomesReturn => {
         setError(response.error || 'Error al actualizar ingreso')
         return null
       }
-    } catch (err) {
+    } catch (_) {
       setError('Error de conexión al actualizar ingreso')
       return null
     } finally {
@@ -146,7 +146,7 @@ export const useIncomes = (): UseIncomesReturn => {
         setError(response.error || 'Error al eliminar ingreso')
         return false
       }
-    } catch (err) {
+    } catch (_) {
       setError('Error de conexión al eliminar ingreso')
       return false
     } finally {

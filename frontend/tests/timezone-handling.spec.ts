@@ -46,7 +46,7 @@ test.describe('GMT-3 Timezone Handling', () => {
     await page.fill('[data-testid="income-date"]', today);
     
     // Mock the API call to capture the request
-    let requestBody: any;
+    let requestBody: Record<string, unknown>;
     await page.route('**/api/incomes', async (route) => {
       const request = route.request();
       requestBody = await request.postDataJSON();
@@ -102,7 +102,7 @@ test.describe('GMT-3 Timezone Handling', () => {
     await page.fill('[data-testid="expense-due-date"]', today);
     
     // Mock the API call to capture the request
-    let requestBody: any;
+    let requestBody: Record<string, unknown>;
     await page.route('**/api/expenses', async (route) => {
       const request = route.request();
       requestBody = await request.postDataJSON();
@@ -269,7 +269,6 @@ test.describe('GMT-3 Timezone Handling', () => {
 
   test('should validate backend timezone requirements', async () => {
     // Test that backend rejects dates not at 15:00 UTC
-    const invalidDate = '2025-08-04T14:00:00.000Z'; // 14:00 UTC instead of 15:00
     
     await page.route('**/api/incomes', async (route) => {
       const request = route.request();
@@ -330,7 +329,7 @@ test.describe('GMT-3 Timezone Handling', () => {
     
     for (const testDate of testCases) {
       // Mock successful API response
-      let capturedRequest: any;
+      let capturedRequest: Record<string, unknown>;
       await page.route('**/api/incomes', async (route) => {
         capturedRequest = await route.request().postDataJSON();
         await route.fulfill({

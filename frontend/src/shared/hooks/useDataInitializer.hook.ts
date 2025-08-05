@@ -26,7 +26,7 @@ export const useDataInitializer = (): UseDataInitializerReturn => {
     
     try {
       // Check if categories already exist
-      const categoriesResponse = await apiClient.get<any[]>('/categories')
+      const categoriesResponse = await apiClient.get<Record<string, unknown>[]>('/categories')
       
       if (categoriesResponse.success && categoriesResponse.data && Array.isArray(categoriesResponse.data) && categoriesResponse.data.length === 0) {
         // Initialize income categories

@@ -381,7 +381,7 @@ class HttpClient {
   /**
    * Restore functionality (not supported in HTTP mode)
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   async restore(_backupData: string): Promise<ApiResponse<void>> {
     return this.createErrorResponse("Restore not supported in HTTP mode");
   }
@@ -389,7 +389,7 @@ class HttpClient {
   /**
    * Clear data functionality (not supported in HTTP mode)
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   async clearData(_collection?: string): Promise<ApiResponse<void>> {
     return this.createErrorResponse("Clear data not supported in HTTP mode");
   }

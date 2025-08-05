@@ -176,7 +176,7 @@ test.describe('Fixes Validation Tests', () => {
         }
       })
       console.log(`📊 Expenses dashboard endpoint status: ${expensesResponse.status()}`)
-    } catch (error) {
+    } catch (_) {
       console.log('⚠️ Expenses dashboard endpoint test skipped (authentication required)')
     }
 
@@ -187,7 +187,7 @@ test.describe('Fixes Validation Tests', () => {
         }
       })
       console.log(`📊 Incomes dashboard endpoint status: ${incomesResponse.status()}`)
-    } catch (error) {
+    } catch (_) {
       console.log('⚠️ Incomes dashboard endpoint test skipped (authentication required)')
     }
   })

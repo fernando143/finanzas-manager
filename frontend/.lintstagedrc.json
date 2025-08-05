@@ -1,0 +1,6 @@
+{
+  "*.{ts,tsx,js,jsx}": [
+    "./node_modules/.bin/eslint --fix",
+    "./node_modules/.bin/eslint --max-warnings 0"
+  ]
+}

@@ -61,7 +61,7 @@ export const useExpenses = (): UseExpensesReturn => {
         setExpenses([])
         setPagination(null)
       }
-    } catch (err) {
+    } catch (_) {
       setError('Error de conexión al obtener gastos')
       setExpenses([])
       setPagination(null)
@@ -85,7 +85,7 @@ export const useExpenses = (): UseExpensesReturn => {
         setError(response.error || 'Error al crear gasto')
         return null
       }
-    } catch (err) {
+    } catch (_) {
       setError('Error de conexión al crear gasto')
       return null
     } finally {
@@ -108,7 +108,7 @@ export const useExpenses = (): UseExpensesReturn => {
         setError(response.error || 'Error al actualizar gasto')
         return null
       }
-    } catch (err) {
+    } catch (_) {
       setError('Error de conexión al actualizar gasto')
       return null
     } finally {
@@ -131,7 +131,7 @@ export const useExpenses = (): UseExpensesReturn => {
         setError(response.error || 'Error al eliminar gasto')
         return false
       }
-    } catch (err) {
+    } catch (_) {
       setError('Error de conexión al eliminar gasto')
       return false
     } finally {
