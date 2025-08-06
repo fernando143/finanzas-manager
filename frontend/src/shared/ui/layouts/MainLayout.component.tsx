@@ -9,7 +9,8 @@ import {
   UserIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  FolderIcon
 } from '@heroicons/react/24/outline'
 import { useState } from 'react'
 
@@ -24,6 +25,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
+    { name: 'Categorías', href: '/categories', icon: FolderIcon },
     { name: 'Ingresos/Egresos', href: '/transactions', icon: CurrencyDollarIcon },
     { name: 'Vencimientos', href: '/due-dates', icon: CalendarDaysIcon },
     { name: 'Reportes', href: '/reports', icon: ChartBarIcon }

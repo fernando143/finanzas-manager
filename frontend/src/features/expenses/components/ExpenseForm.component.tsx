@@ -13,7 +13,7 @@ interface ExpenseFormProps {
 }
 
 export const ExpenseForm = ({ expense, isOpen, onClose, onSave }: ExpenseFormProps) => {
-  const { expenseCategories, loading: categoriesLoading } = useCategories()
+  const { expenseCategories, loading: categoriesLoading, refreshCategories } = useCategories()
   const [formData, setFormData] = useState({
     description: expense?.description || '',
     amount: expense?.amount || 0,
@@ -34,6 +34,14 @@ export const ExpenseForm = ({ expense, isOpen, onClose, onSave }: ExpenseFormPro
       status: expense?.status || 'PENDING' as const
     })
   }, [expense])
+
+  // Refresh categories when form opens
+  useEffect(() => {
+    if (isOpen) {
+      refreshCategories()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]) // Only depend on isOpen to avoid loops
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

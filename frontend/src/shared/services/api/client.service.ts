@@ -323,6 +323,32 @@ class HttpClient {
   }
 
   /**
+   * PUT request
+   */
+  async put<T>(
+    endpoint: string,
+    data: Record<string, unknown>,
+  ): Promise<ApiResponse<T>> {
+    try {
+      const response = await this.axiosInstance.put(endpoint, data);
+
+      // Backend returns data in {success, data, message} format
+      if (response.data.success) {
+        return this.createResponse(
+          response.data.data as T,
+          response.data.message,
+        );
+      } else {
+        return this.createErrorResponse(
+          response.data.error || "Request failed",
+        );
+      }
+    } catch (error) {
+      return this.handleAxiosError(error as AxiosError);
+    }
+  }
+
+  /**
    * PATCH request
    */
   async patch<T>(
@@ -442,6 +468,16 @@ class ApiClient {
     data: Record<string, unknown>,
   ): Promise<ApiResponse<T>> {
     return this.httpClient.post<T>(endpoint, data);
+  }
+
+  /**
+   * PUT request - maintains same interface as LocalStorage version
+   */
+  async put<T>(
+    endpoint: string,
+    data: Record<string, unknown>,
+  ): Promise<ApiResponse<T>> {
+    return this.httpClient.put<T>(endpoint, data);
   }
 
   /**

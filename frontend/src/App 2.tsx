@@ -1,9 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider, useAuth } from './shared/context'
 import { useDataInitializer } from './shared/hooks'
-import { queryClient } from './shared/config/query-client.config'
 import { LoginForm } from './features/auth'
 import { MainLayout } from './shared/ui/layouts'
 import { Dashboard } from './features/dashboard'
@@ -64,15 +61,9 @@ function AppContent() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-      <ReactQueryDevtools 
-        initialIsOpen={false} 
-        position="bottom-right"
-      />
-    </QueryClientProvider>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
 
