@@ -95,33 +95,43 @@ async function main() {
   const allCategories = [...incomeCategories, ...expenseCategories];
 
   for (const categoryData of allCategories) {
-    await prisma.category.upsert({
+    // Check if category already exists by name and type
+    const existingCategory = await prisma.category.findFirst({
       where: {
-        id: `${categoryData.name}-${categoryData.type}`
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, "-"),
-      },
-      update: {},
-      create: {
-        id: `${categoryData.name}-${categoryData.type}`
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, "-"),
-        ...categoryData,
+        name: categoryData.name,
         type: categoryData.type as any,
+        userId: null, // Global categories have null userId
       },
     });
+
+    if (!existingCategory) {
+      // Create new category with auto-generated CUID
+      await prisma.category.create({
+        data: {
+          // Let Prisma generate the CUID automatically via @default(cuid())
+          // Don't specify the id field at all
+          ...categoryData,
+          type: categoryData.type as any,
+          userId: null, // These are global categories
+        },
+      });
+    }
   }
 
   console.log(`📋 Created ${allCategories.length} default categories`);
 
   // Crear cuenta por defecto
-  const defaultAccount = await prisma.account.upsert({
+  const existingAccount = await prisma.account.findFirst({
     where: {
-      id: `default-account-${testUser.id}`,
+      name: "Cuenta Principal",
+      userId: testUser.id,
     },
-    update: {},
-    create: {
-      id: `default-account-${testUser.id}`,
+  });
+
+  const defaultAccount = existingAccount || await prisma.account.create({
+    data: {
+      // Let Prisma generate the CUID automatically via @default(cuid())
+      // Don't specify the id field
       name: "Cuenta Principal",
       type: "CHECKING",
       balance: 0,

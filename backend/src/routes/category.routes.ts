@@ -18,14 +18,9 @@ const CategoryCreateSchema = z.object({
 
 const CategoryUpdateSchema = CategoryCreateSchema.partial()
 
-const TypeParamSchema = z.object({
-  type: z.enum(['INCOME', 'EXPENSE']),
-})
-
 // Routes
 router.get('/search', CategoryController.search)
 router.get('/hierarchy', CategoryController.getHierarchy)
-router.get('/by-type/:type', validateParams(TypeParamSchema), CategoryController.getByType)
 router.get('/', CategoryController.getAll)
 router.get('/:id', validateParams(IdParamSchema), CategoryController.getById)
 router.post('/', validateBody(CategoryCreateSchema), CategoryController.create)

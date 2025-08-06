@@ -7,7 +7,7 @@ export { authService } from './auth.service'
 // Core financial services
 export { incomeService } from './income.service'
 export { expenseService } from './expense.service'
-export { categoryService } from './category.service'
+export { categoryService, CategoryError, CategoryErrorCode } from './category.service'
 
 // Goal and planning services
 export { savingsGoalService } from './savings-goal.service'

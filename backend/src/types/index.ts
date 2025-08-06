@@ -78,4 +78,8 @@ export interface IncomeWhereClause {
 export interface CategoryWhereClause {
   type?: 'INCOME' | 'EXPENSE';
   parentId?: string | null;
+  name?: {
+    contains: string;
+    mode: 'insensitive';
+  };
 }

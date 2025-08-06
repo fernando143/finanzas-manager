@@ -47,6 +47,7 @@ model Category {
   children Category[] @relation("CategoryHierarchy")
   incomes  Income[]
   expenses Expense[]
+  budgetAllocations BudgetAllocation[]
 
   @@index([type])
   @@index([userId])
@@ -178,9 +179,11 @@ model BudgetAllocation {
   updatedAt  DateTime @updatedAt
 
   // Relaciones
-  budget Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  budget   Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
   @@index([budgetId])
+  @@index([categoryId])
   @@map("budget_allocations")
 }
 
