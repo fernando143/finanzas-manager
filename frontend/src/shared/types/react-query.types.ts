@@ -82,7 +82,7 @@ export type CustomInfiniteQueryOptions<
   TData = unknown,
   TError = QueryError
 > = Omit<
-  UseInfiniteQueryOptions<TData, TError, TData, TData, QueryKey, InfiniteQueryPageParam>,
+  UseInfiniteQueryOptions<TData, TError, TData, TData extends readonly unknown[] ? TData : readonly unknown[], QueryKey>,
   'queryKey' | 'queryFn' | 'getNextPageParam' | 'getPreviousPageParam' | 'initialPageParam'
 >
 

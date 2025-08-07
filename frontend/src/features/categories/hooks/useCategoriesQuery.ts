@@ -13,7 +13,9 @@ import type {
   CategoryUpdateDTO, 
   CategoryType,
   CategoryResponse,
-  CategoryQueryParams
+  CategoryQueryParams,
+  CategoryStats,
+  CategoryDependencies
 } from '../types/category.types'
 import type { CustomQueryOptions, CustomMutationOptions } from '../../../shared/types/react-query.types'
 
@@ -241,7 +243,7 @@ export function useCategoryHierarchy(
  */
 export function useCategoryStats(
   categoryId: string,
-  options?: CustomQueryOptions<CategoryWithRelations>
+  options?: CustomQueryOptions<CategoryStats>
 ) {
   return useQuery({
     queryKey: queryKeys.categories.stats(categoryId),
@@ -257,7 +259,7 @@ export function useCategoryStats(
  */
 export function useCategoryDependencies(
   categoryId: string,
-  options?: CustomQueryOptions<CategoryWithRelations>
+  options?: CustomQueryOptions<CategoryDependencies>
 ) {
   return useQuery({
     queryKey: queryKeys.categories.dependencies(categoryId),

@@ -203,5 +203,9 @@ export function getModuleQueryKey(module: keyof typeof queryKeys) {
  * Helper function to invalidate specific list queries
  */
 export function getListQueryKey(module: keyof Omit<typeof queryKeys, 'all' | 'user'>) {
-  return queryKeys[module].lists()
+  const moduleKeys = queryKeys[module];
+  if ('lists' in moduleKeys && typeof moduleKeys.lists === 'function') {
+    return moduleKeys.lists();
+  }
+  return moduleKeys.all();
 }

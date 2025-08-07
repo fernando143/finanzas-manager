@@ -66,11 +66,10 @@ describe('useCategoriesQuery', () => {
           name: 'Test Category',
           type: 'INCOME',
           color: '#000000',
-          icon: 'icon',
           userId: 'user-1',
           parentId: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           parent: null,
           children: [],
           _count: {
@@ -139,11 +138,10 @@ describe('useCategoriesQuery', () => {
           name: 'Income Category',
           type: 'INCOME',
           color: '#000000',
-          icon: 'icon1',
           userId: 'user-1',
           parentId: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           parent: null,
           children: [],
           _count: { incomes: 0, expenses: 0, budgetAllocations: 0 }
@@ -153,11 +151,10 @@ describe('useCategoriesQuery', () => {
           name: 'Expense Category',
           type: 'EXPENSE',
           color: '#FFFFFF',
-          icon: 'icon2',
           userId: 'user-1',
           parentId: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           parent: null,
           children: [],
           _count: { incomes: 0, expenses: 0, budgetAllocations: 0 }
@@ -191,11 +188,10 @@ describe('useCategoriesQuery', () => {
         name: 'New Category',
         type: 'INCOME',
         color: '#00FF00',
-        icon: 'new-icon',
         userId: 'user-1',
         parentId: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         parent: null,
         children: [],
         _count: { incomes: 0, expenses: 0, budgetAllocations: 0 }
@@ -210,8 +206,7 @@ describe('useCategoriesQuery', () => {
       await result.current.mutateAsync({
         name: 'New Category',
         type: 'INCOME',
-        color: '#00FF00',
-        icon: 'new-icon'
+        color: '#00FF00'
       })
 
       await waitFor(() => {
@@ -221,8 +216,7 @@ describe('useCategoriesQuery', () => {
       expect(categoryService.create).toHaveBeenCalledWith({
         name: 'New Category',
         type: 'INCOME',
-        color: '#00FF00',
-        icon: 'new-icon'
+        color: '#00FF00'
       })
 
       expect(result.current.data).toEqual(newCategory)
@@ -236,11 +230,10 @@ describe('useCategoriesQuery', () => {
         name: 'Updated Category',
         type: 'EXPENSE',
         color: '#FF0000',
-        icon: 'updated-icon',
         userId: 'user-1',
         parentId: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         parent: null,
         children: [],
         _count: { incomes: 0, expenses: 0, budgetAllocations: 0 }
@@ -256,9 +249,7 @@ describe('useCategoriesQuery', () => {
         id: '1',
         data: {
           name: 'Updated Category',
-          type: 'EXPENSE',
-          color: '#FF0000',
-          icon: 'updated-icon'
+          color: '#FF0000'
         }
       })
 
@@ -268,9 +259,7 @@ describe('useCategoriesQuery', () => {
 
       expect(categoryService.update).toHaveBeenCalledWith('1', {
         name: 'Updated Category',
-        type: 'EXPENSE',
-        color: '#FF0000',
-        icon: 'updated-icon'
+        color: '#FF0000'
       })
 
       expect(result.current.data).toEqual(updatedCategory)

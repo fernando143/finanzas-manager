@@ -145,9 +145,9 @@ export const useCategories = (options?: UseCategoriesOptions): UseCategoriesRetu
 
   // Combine loading states from queries and mutations
   const isLoading = loading || 
-    createMutation.isLoading || 
-    updateMutation.isLoading || 
-    deleteMutation.isLoading
+    createMutation.isPending || 
+    updateMutation.isPending || 
+    deleteMutation.isPending
 
   // Combine error states
   const combinedError = error || 

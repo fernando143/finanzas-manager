@@ -19,7 +19,7 @@ export function createQueryClient(): QueryClient {
         // Don't refetch on window focus to reduce unnecessary requests
         refetchOnWindowFocus: false,
         // Keep previous data when refetching
-        placeholderData: (previousData) => previousData,
+        placeholderData: (previousData: unknown) => previousData,
       },
       mutations: {
         // Only retry mutations once

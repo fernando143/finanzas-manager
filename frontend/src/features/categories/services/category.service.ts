@@ -36,14 +36,23 @@ class CategoryService {
       ? `${this.baseURL}?${queryParams.toString()}`
       : this.baseURL
 
-    return apiClient.get<CategoryResponse>(url)
+    const response = await apiClient.get<CategoryResponse['data']>(url)
+    
+    if (!response.success) {
+      throw new Error(response.error || 'Error al obtener categorías')
+    }
+
+    return {
+      success: true,
+      data: response.data
+    }
   }
 
   /**
    * Get a single category by ID
    */
   async getCategory(id: string, includeGlobal = true): Promise<CategoryWithRelations | null> {
-    const response = await apiClient.get<CategoryResponse>(
+    const response = await apiClient.get<{ category?: CategoryWithRelations }>(
       `${this.baseURL}/${id}?includeGlobal=${includeGlobal}`
     )
 
@@ -60,7 +69,7 @@ class CategoryService {
   async create(data: CategoryCreateDTO): Promise<CategoryWithRelations> {
     // Clean up data before sending - remove empty parentId
     const cleanData = this.sanitizeCategoryData(data)
-    const response = await apiClient.post<CategoryResponse>(this.baseURL, cleanData)
+    const response = await apiClient.post<{ category?: CategoryWithRelations }>(this.baseURL, cleanData as unknown as Record<string, unknown>)
 
     if (!response.success || !response.data?.category) {
       throw new Error(response.error || 'Error al crear categoría')
@@ -75,7 +84,7 @@ class CategoryService {
   async update(id: string, data: CategoryUpdateDTO): Promise<CategoryWithRelations> {
     // Clean up data before sending - remove empty parentId
     const cleanData = this.sanitizeCategoryData(data)
-    const response = await apiClient.put<CategoryResponse>(`${this.baseURL}/${id}`, cleanData)
+    const response = await apiClient.put<{ category?: CategoryWithRelations }>(`${this.baseURL}/${id}`, cleanData as unknown as Record<string, unknown>)
 
     if (!response.success || !response.data?.category) {
       throw new Error(response.error || 'Error al actualizar categoría')
@@ -88,7 +97,7 @@ class CategoryService {
    * Delete a category
    */
   async delete(id: string): Promise<void> {
-    const response = await apiClient.delete<CategoryResponse>(`${this.baseURL}/${id}`)
+    const response = await apiClient.delete<unknown>(`${this.baseURL}/${id}`)
 
     if (!response.success) {
       throw new Error(response.error || 'Error al eliminar categoría')
@@ -99,7 +108,7 @@ class CategoryService {
    * Search categories by name
    */
   async search(query: string, includeGlobal = true): Promise<CategoryWithRelations[]> {
-    const response = await apiClient.get<CategoryResponse>(
+    const response = await apiClient.get<{ categories?: CategoryWithRelations[] }>(
       `${this.baseURL}/search?q=${encodeURIComponent(query)}&includeGlobal=${includeGlobal}`
     )
 
@@ -118,7 +127,7 @@ class CategoryService {
     if (type) params.append('type', type)
     params.append('includeGlobal', String(includeGlobal))
 
-    const response = await apiClient.get<CategoryResponse>(
+    const response = await apiClient.get<{ categories?: CategoryWithRelations[] }>(
       `${this.baseURL}/hierarchy?${params.toString()}`
     )
 
@@ -133,7 +142,7 @@ class CategoryService {
    * Get category usage statistics
    */
   async getUsageStats(categoryId: string): Promise<CategoryStats> {
-    const response = await apiClient.get<{ success: boolean; data?: CategoryStats; error?: string }>(
+    const response = await apiClient.get<CategoryStats>(
       `${this.baseURL}/${categoryId}/stats`
     )
 
@@ -148,7 +157,7 @@ class CategoryService {
    * Check category dependencies
    */
   async checkDependencies(categoryId: string): Promise<CategoryDependencies> {
-    const response = await apiClient.get<{ success: boolean; data?: CategoryDependencies; error?: string }>(
+    const response = await apiClient.get<CategoryDependencies>(
       `${this.baseURL}/${categoryId}/dependencies`
     )
 
