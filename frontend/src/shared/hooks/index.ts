@@ -7,3 +7,4 @@ export { useCategories } from './useCategories.hook';
 export { useDataInitializer } from './useDataInitializer.hook';
 export { useDashboardData } from './useDashboardData.hook';
 export { useCurrencyInput } from './useCurrencyInput.hook';
+export { useDebounce } from './useDebounce.hook';

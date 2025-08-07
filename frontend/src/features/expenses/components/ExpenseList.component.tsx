@@ -7,6 +7,7 @@ import {
 } from "@heroicons/react/24/outline";
 import type { Expense } from "../../../types/api";
 import { ExpenseForm } from "./ExpenseForm.component";
+import { ExpenseFilters, type ExpenseFilterParams } from "./ExpenseFilters.component";
 import { useExpenses } from "../../../shared/hooks";
 import { Pagination } from "../../../shared/ui/components";
 import { format, parseISO } from "date-fns";
@@ -24,12 +25,17 @@ export const ExpenseList = () => {
     deleteExpense,
     setPage,
     currentPage,
+    setFilters,
   } = useExpenses();
   console.log("expenses", expenses);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(
     undefined,
   );
+
+  const handleFiltersChange = (filters: ExpenseFilterParams) => {
+    setFilters(filters);
+  };
 
   const handleSaveExpense = async (
     expenseData: Omit<Expense, "id" | "userId" | "createdAt" | "updatedAt">,
@@ -132,6 +138,13 @@ export const ExpenseList = () => {
           </button>
         </div>
       </div>
+
+      {/* Expense Filters */}
+      <ExpenseFilters 
+        onFiltersChange={handleFiltersChange}
+        loading={loading}
+        className="mt-6"
+      />
 
       {/* Error alert */}
       {error && (
@@ -251,13 +264,13 @@ export const ExpenseList = () => {
                       </td>
                     </tr>
                   ))}
-                  {expenses.length === 0 && (
+                  {expenses.length === 0 && !loading && (
                     <tr>
                       <td
                         colSpan={7}
                         className="px-6 py-4 text-center text-gray-500"
                       >
-                        No hay egresos registrados
+                        No se encontraron egresos con los filtros aplicados
                       </td>
                     </tr>
                   )}

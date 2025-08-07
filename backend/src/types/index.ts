@@ -63,6 +63,14 @@ export interface ExpenseWhereClause {
     gte?: Date;
     lte?: Date;
   };
+  createdAt?: {
+    gte?: Date;
+    lte?: Date;
+  };
+  description?: {
+    contains: string;
+    mode: 'insensitive';
+  };
 }
 
 export interface IncomeWhereClause {

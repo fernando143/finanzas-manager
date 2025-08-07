@@ -12,6 +12,14 @@ interface PaginationData {
 interface UseExpensesParams {
   page?: number
   limit?: number
+  search?: string
+  createdFrom?: string
+  createdTo?: string
+  dueFrom?: string
+  dueTo?: string
+  category?: string
+  frequency?: string
+  status?: string
 }
 
 interface UseExpensesReturn {
@@ -27,6 +35,8 @@ interface UseExpensesReturn {
   refreshExpenses: () => Promise<void>
   setPage: (page: number) => void
   currentPage: number
+  filters: UseExpensesParams
+  setFilters: (filters: UseExpensesParams) => void
 }
 
 export const useExpenses = (): UseExpensesReturn => {
@@ -35,6 +45,7 @@ export const useExpenses = (): UseExpensesReturn => {
   const [error, setError] = useState<string | null>(null)
   const [pagination, setPagination] = useState<PaginationData | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [filters, setFilters] = useState<UseExpensesParams>({})
 
   const fetchExpenses = useCallback(async (params?: UseExpensesParams) => {
     setLoading(true)
@@ -45,8 +56,42 @@ export const useExpenses = (): UseExpensesReturn => {
       const page = params?.page || currentPage
       const limit = params?.limit || 10
       
+      // Add pagination parameters
       queryParams.append('page', page.toString())
       queryParams.append('limit', limit.toString())
+      
+      // Add filter parameters from both params and state
+      const combinedFilters = { ...filters, ...params }
+      
+      // Add search filter
+      if (combinedFilters.search) {
+        queryParams.append('search', combinedFilters.search)
+      }
+      
+      // Add date filters
+      if (combinedFilters.createdFrom) {
+        queryParams.append('createdFrom', combinedFilters.createdFrom)
+      }
+      if (combinedFilters.createdTo) {
+        queryParams.append('createdTo', combinedFilters.createdTo)
+      }
+      if (combinedFilters.dueFrom) {
+        queryParams.append('dueFrom', combinedFilters.dueFrom)
+      }
+      if (combinedFilters.dueTo) {
+        queryParams.append('dueTo', combinedFilters.dueTo)
+      }
+      
+      // Add other filters if present
+      if (combinedFilters.category) {
+        queryParams.append('category', combinedFilters.category)
+      }
+      if (combinedFilters.frequency) {
+        queryParams.append('frequency', combinedFilters.frequency)
+      }
+      if (combinedFilters.status) {
+        queryParams.append('status', combinedFilters.status)
+      }
       
       const response = await apiClient.get<{expenses: Expense[], pagination: PaginationData}>(`/expenses?${queryParams}`)
       console.log('expenses response', response)
@@ -68,7 +113,7 @@ export const useExpenses = (): UseExpensesReturn => {
     } finally {
       setLoading(false)
     }
-  }, [currentPage])
+  }, [currentPage, filters])
 
   const createExpense = useCallback(async (expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Expense | null> => {
     setLoading(true)
@@ -151,7 +196,13 @@ export const useExpenses = (): UseExpensesReturn => {
     fetchExpenses({ page })
   }, [fetchExpenses])
 
-  // Auto-fetch on mount
+  // Update filters and refetch
+  const updateFilters = useCallback((newFilters: UseExpensesParams) => {
+    setFilters(newFilters)
+    setCurrentPage(1) // Reset to first page when filters change
+  }, [])
+
+  // Auto-fetch on mount and when filters change
   useEffect(() => {
     fetchExpenses()
   }, [fetchExpenses])
@@ -168,6 +219,8 @@ export const useExpenses = (): UseExpensesReturn => {
     markAsPaid,
     refreshExpenses,
     setPage,
-    currentPage
+    currentPage,
+    filters,
+    setFilters: updateFilters
   }
 }

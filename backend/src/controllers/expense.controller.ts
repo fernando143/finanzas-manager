@@ -66,6 +66,12 @@ const ExpenseQuerySchema = z.object({
     .string()
     .optional()
     .transform((val) => val === "true"),
+  // New filter parameters
+  search: z.string().min(2).max(100).optional(),
+  createdFrom: z.string().datetime().optional(),
+  createdTo: z.string().datetime().optional(),
+  dueFrom: z.string().datetime().optional(),
+  dueTo: z.string().datetime().optional(),
 });
 
 export const ExpenseController = {
@@ -85,6 +91,11 @@ export const ExpenseController = {
       dateTo,
       sort,
       order,
+      search,
+      createdFrom,
+      createdTo,
+      dueFrom,
+      dueTo,
     } = query;
 
     let mercadoPagoSync:
@@ -160,10 +171,27 @@ export const ExpenseController = {
     if (category) whereClause.categoryId = category;
     if (frequency) whereClause.frequency = frequency;
     if (status) whereClause.status = status;
-    if (dateFrom || dateTo) {
+    
+    // Search filter
+    if (search) {
+      whereClause.description = {
+        contains: search,
+        mode: 'insensitive'
+      };
+    }
+    
+    // Creation date filters
+    if (createdFrom || createdTo) {
+      whereClause.createdAt = {};
+      if (createdFrom) whereClause.createdAt.gte = new Date(createdFrom);
+      if (createdTo) whereClause.createdAt.lte = new Date(createdTo);
+    }
+    
+    // Due date filters (supporting both old and new parameters)
+    if (dateFrom || dateTo || dueFrom || dueTo) {
       whereClause.dueDate = {};
-      if (dateFrom) whereClause.dueDate.gte = new Date(dateFrom);
-      if (dateTo) whereClause.dueDate.lte = new Date(dateTo);
+      if (dateFrom || dueFrom) whereClause.dueDate.gte = new Date(dateFrom || dueFrom!);
+      if (dateTo || dueTo) whereClause.dueDate.lte = new Date(dateTo || dueTo!);
     }
 
     const expenses = await expenseService.findMany(userId, {
