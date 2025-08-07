@@ -9,6 +9,9 @@ export { incomeService } from './income.service'
 export { expenseService } from './expense.service'
 export { categoryService, CategoryError, CategoryErrorCode } from './category.service'
 
+// Integration services
+export { mercadoPagoService } from './mercadopago.service'
+
 // Goal and planning services
 export { savingsGoalService } from './savings-goal.service'
 

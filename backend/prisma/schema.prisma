@@ -80,16 +80,17 @@ model Income {
 
 // Modelo de Gastos
 model Expense {
-  id          String        @id @default(cuid())
-  description String
-  amount      Decimal       @db.Decimal(12, 2)
-  categoryId  String
-  frequency   Frequency
-  dueDate     DateTime?
-  status      ExpenseStatus @default(PENDING)
-  userId      String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id                    String        @id @default(cuid())
+  description           String
+  amount                Decimal       @db.Decimal(12, 2)
+  categoryId            String
+  frequency             Frequency
+  dueDate               DateTime?
+  status                ExpenseStatus @default(PENDING)
+  userId                String
+  mercadoPagoPaymentId  String?       // For tracking MercadoPago payments to prevent duplicates
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
 
   // Relaciones
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -98,6 +99,7 @@ model Expense {
   @@index([userId])
   @@index([dueDate])
   @@index([status])
+  @@index([mercadoPagoPaymentId])
   @@map("expenses")
 }
 

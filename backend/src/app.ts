@@ -51,6 +51,7 @@ app.get('/', (req, res) => {
       incomes: '/api/incomes',
       expenses: '/api/expenses',
       categories: '/api/categories',
+      mercadopago: '/api/mercadopago',
     },
   });
 });

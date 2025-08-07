@@ -10,6 +10,7 @@ const ExpenseCreateSchema = z.object({
   frequency: z.enum(['MONTHLY', 'BIWEEKLY', 'WEEKLY', 'ANNUAL', 'ONE_TIME']),
   dueDate: z.string().datetime().optional(),
   status: z.enum(['PENDING', 'PAID', 'OVERDUE', 'PARTIAL']).default('PENDING'),
+  mercadoPagoPaymentId: z.string().optional(),
 })
 
 const ExpenseUpdateSchema = ExpenseCreateSchema.partial()
@@ -39,6 +40,7 @@ export class ExpenseService {
       data: {
         ...validatedData,
         dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
+        mercadoPagoPaymentId: validatedData.mercadoPagoPaymentId || null,
         userId,
       },
       include: {
@@ -108,6 +110,7 @@ export class ExpenseService {
       data: {
         ...validatedData,
         dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : undefined,
+        mercadoPagoPaymentId: validatedData.mercadoPagoPaymentId || undefined,
       },
       include: {
         category: true,
@@ -209,6 +212,76 @@ export class ExpenseService {
       },
       orderBy: { dueDate: 'asc' },
     })
+  }
+
+  // Check if expense with MercadoPago payment ID already exists
+  async findByMercadoPagoPaymentId(userId: string, mercadoPagoPaymentId: string): Promise<Expense | null> {
+    return prisma.expense.findFirst({
+      where: {
+        userId,
+        mercadoPagoPaymentId,
+      },
+      include: {
+        category: true,
+      },
+    })
+  }
+
+  // Create multiple expenses from MercadoPago payments, avoiding duplicates
+  async createFromMercadoPagoPayments(
+    userId: string, 
+    expensesData: Array<z.infer<typeof ExpenseCreateSchema> & { mercadoPagoPaymentId: string }>
+  ): Promise<{
+    created: Expense[]
+    skipped: string[]
+    errors: Array<{ mercadoPagoPaymentId: string; error: string }>
+  }> {
+    const created: Expense[] = []
+    const skipped: string[] = []
+    const errors: Array<{ mercadoPagoPaymentId: string; error: string }> = []
+
+    for (const expenseData of expensesData) {
+      try {
+        // Check if expense with this MercadoPago payment ID already exists
+        const existingExpense = await this.findByMercadoPagoPaymentId(userId, expenseData.mercadoPagoPaymentId)
+        
+        if (existingExpense) {
+          skipped.push(expenseData.mercadoPagoPaymentId)
+          continue
+        }
+
+        // Create new expense
+        const newExpense = await this.create(userId, expenseData)
+        created.push(newExpense)
+      } catch (error) {
+        console.error(`Error creating expense from MercadoPago payment ${expenseData.mercadoPagoPaymentId}:`, error)
+        errors.push({
+          mercadoPagoPaymentId: expenseData.mercadoPagoPaymentId,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        })
+      }
+    }
+
+    return { created, skipped, errors }
+  }
+
+  // Get expenses with MercadoPago integration
+  async findManyWithMercadoPago(userId: string, options?: {
+    skip?: number
+    take?: number
+    where?: Prisma.ExpenseWhereInput
+    orderBy?: Prisma.ExpenseOrderByWithRelationInput
+    includeMercadoPago?: boolean
+  }): Promise<(Expense & { category: { id: string; name: string; type: string; parentId: string | null; userId: string | null; createdAt: Date; updatedAt: Date } })[]> {
+    const expenses = await this.findMany(userId, options)
+    
+    if (options?.includeMercadoPago) {
+      // Here we could enhance with additional MercadoPago data if needed
+      // For now, just return the expenses with the mercadoPagoPaymentId field
+      return expenses
+    }
+    
+    return expenses
   }
 }
 
