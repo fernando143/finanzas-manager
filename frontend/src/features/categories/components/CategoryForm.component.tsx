@@ -14,9 +14,10 @@ const CategorySchema = z.object({
     .min(1, 'El nombre es requerido')
     .max(100, 'El nombre no puede exceder 100 caracteres')
     .trim(),
-  type: z.enum(['INCOME', 'EXPENSE'] as const, {
-    errorMap: () => ({ message: 'Selecciona un tipo válido' })
-  }),
+  type: z.enum(['INCOME', 'EXPENSE'] as const).refine(
+    (val) => ['INCOME', 'EXPENSE'].includes(val),
+    { message: 'Selecciona un tipo válido' }
+  ),
   color: z.string()
     .regex(/^#[0-9A-F]{6}$/i, 'Formato de color inválido')
     .optional()
@@ -106,7 +107,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {}
-        error.errors.forEach(err => {
+        error.issues.forEach((err) => {
           if (err.path[0]) {
             newErrors[err.path[0] as string] = err.message
           }

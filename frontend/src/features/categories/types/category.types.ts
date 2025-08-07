@@ -20,17 +20,19 @@ export interface CategoryWithRelations extends Category {
   }
 }
 
-export interface CategoryHierarchy extends Category {
+export interface CategoryHierarchy extends CategoryWithRelations {
   children: CategoryHierarchy[]
   level: number
   path: string[]
 }
 
 // Enums
-export enum CategoryType {
-  INCOME = 'INCOME',
-  EXPENSE = 'EXPENSE'
-}
+export const CategoryType = {
+  INCOME: 'INCOME',
+  EXPENSE: 'EXPENSE'
+} as const
+
+export type CategoryType = typeof CategoryType[keyof typeof CategoryType]
 
 // DTOs
 export interface CategoryCreateDTO {
@@ -88,17 +90,19 @@ export interface CategoryDependencies {
 }
 
 // Error codes
-export enum CategoryErrorCode {
-  CATEGORY_NOT_FOUND = 'CATEGORY_NOT_FOUND',
-  CATEGORY_IN_USE = 'CATEGORY_IN_USE',
-  INVALID_PARENT = 'INVALID_PARENT',
-  CIRCULAR_REFERENCE = 'CIRCULAR_REFERENCE',
-  MAX_DEPTH_EXCEEDED = 'MAX_DEPTH_EXCEEDED',
-  TYPE_MISMATCH = 'TYPE_MISMATCH',
-  UNAUTHORIZED = 'UNAUTHORIZED',
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  DUPLICATE_NAME = 'DUPLICATE_NAME'
-}
+export const CategoryErrorCode = {
+  CATEGORY_NOT_FOUND: 'CATEGORY_NOT_FOUND',
+  CATEGORY_IN_USE: 'CATEGORY_IN_USE',
+  INVALID_PARENT: 'INVALID_PARENT',
+  CIRCULAR_REFERENCE: 'CIRCULAR_REFERENCE',
+  MAX_DEPTH_EXCEEDED: 'MAX_DEPTH_EXCEEDED',
+  TYPE_MISMATCH: 'TYPE_MISMATCH',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  DUPLICATE_NAME: 'DUPLICATE_NAME'
+} as const
+
+export type CategoryErrorCode = typeof CategoryErrorCode[keyof typeof CategoryErrorCode]
 
 // Filter options
 export interface CategoryFilterOptions {

@@ -34,7 +34,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   const [viewMode, setViewMode] = useState<CategoryViewMode>('list')
   const [filterType, setFilterType] = useState<CategoryType | 'ALL'>(type)
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { 
     categories, 
@@ -117,7 +117,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         <div className="toolbar bg-white p-4 rounded-lg shadow-sm">
           <div className="h-10 bg-gray-100 rounded animate-pulse"></div>
         </div>
-        <CategorySkeleton count={itemsPerPage} variant={viewMode} />
+        <CategorySkeleton count={itemsPerPage} variant={viewMode === 'tree' ? 'list' : viewMode} />
       </div>
     )
   }

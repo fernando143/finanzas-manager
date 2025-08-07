@@ -70,7 +70,7 @@ function App() {
       </AuthProvider>
       <ReactQueryDevtools 
         initialIsOpen={false} 
-        position="bottom-right"
+        buttonPosition="bottom-right"
       />
     </QueryClientProvider>
   )

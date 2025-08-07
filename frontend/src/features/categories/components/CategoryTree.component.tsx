@@ -123,9 +123,9 @@ interface TreeNodeProps {
   selected: boolean
   hovered: boolean
   onToggleExpand: () => void
-  onSelect: () => void
-  onEdit: () => void
-  onDelete: () => void
+  onSelect: (category: CategoryHierarchy) => void
+  onEdit: (category: CategoryHierarchy) => void
+  onDelete: (category: CategoryHierarchy) => void
   onHover: (id: string | null) => void
   expandedNodes: Set<string>
   toggleExpanded: (id: string) => void
@@ -167,7 +167,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
         style={{ paddingLeft: `${indent + 8}px` }}
         onMouseEnter={() => onHover(node.id)}
         onMouseLeave={() => onHover(null)}
-        onClick={onSelect}
+        onClick={() => onSelect(node)}
         role="treeitem"
         aria-expanded={hasChildren ? expanded : undefined}
         aria-selected={selected}
@@ -241,7 +241,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    onEdit()
+                    onEdit(node)
                   }}
                   className="p-1 rounded hover:bg-gray-200 transition-colors"
                   title="Editar"
@@ -253,7 +253,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    onDelete()
+                    onDelete(node)
                   }}
                   className="p-1 rounded hover:bg-red-100 transition-colors"
                   title="Eliminar"
