@@ -37,6 +37,7 @@ export type Expense = {
   frequency: 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY' | 'ANNUAL' | 'ONE_TIME'; // Changed to uppercase to match API
   dueDate?: string;
   status: 'PENDING' | 'PAID' | 'OVERDUE' | 'PARTIAL'; // Changed to uppercase to match backend API
+  mercadoPagoPaymentId?: string; // For tracking MercadoPago payments
   createdAt: string;
   updatedAt: string;
 }

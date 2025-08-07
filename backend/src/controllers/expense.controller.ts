@@ -56,8 +56,8 @@ const ExpenseQuerySchema = z.object({
   sort: z
     .enum(["dueDate", "amount", "description", "createdAt"])
     .optional()
-    .default("dueDate"),
-  order: z.enum(["asc", "desc"]).optional().default("asc"),
+    .default("createdAt"),
+  order: z.enum(["asc", "desc"]).optional().default("desc"),
   includeMercadoPago: z
     .string()
     .optional()
