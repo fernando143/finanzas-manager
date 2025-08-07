@@ -85,78 +85,74 @@ export const ExpenseController = {
       dateTo,
       sort,
       order,
-      includeMercadoPago,
-      syncMercadoPago = true,
     } = query;
 
     let mercadoPagoSync:
       | { created: number; skipped: number; errors: number }
       | undefined;
-    console.log("syncMercadoPago", syncMercadoPago);
+
     // Sync MercadoPago payments if requested
-    if (syncMercadoPago) {
-      console.log("Syncing MercadoPago payments...");
+    console.log("Syncing MercadoPago payments...");
+    try {
+      const { mercadoPagoService, categoryService } = await import(
+        "../services"
+      );
+
+      // Get or create default MercadoPago category
+      let defaultCategory;
       try {
-        const { mercadoPagoService, categoryService } = await import(
-          "../services"
-        );
+        const categories = await categoryService.findMany(userId, {
+          where: {
+            name: "MercadoPago",
+            type: "EXPENSE",
+          },
+        });
+        defaultCategory = categories[0];
 
-        // Get or create default MercadoPago category
-        let defaultCategory;
-        try {
-          const categories = await categoryService.findMany(userId, {
-            where: {
-              name: "MercadoPago",
-              type: "EXPENSE",
-            },
+        if (!defaultCategory) {
+          defaultCategory = await categoryService.create(userId, {
+            name: "MercadoPago",
+            type: "EXPENSE",
+            color: "#009EE3",
           });
-          defaultCategory = categories[0];
-
-          if (!defaultCategory) {
-            defaultCategory = await categoryService.create(userId, {
-              name: "MercadoPago",
-              type: "EXPENSE",
-              color: "#009EE3",
-            });
-          }
-        } catch (error) {
-          // Fallback: get any expense category
-          const expenseCategories = await categoryService.findMany(userId, {
-            where: { type: "EXPENSE" },
-          });
-          if (expenseCategories.length === 0) {
-            throw new Error("No expense categories available");
-          }
-          defaultCategory = expenseCategories[0];
         }
+      } catch (error) {
+        // Fallback: get any expense category
+        const expenseCategories = await categoryService.findMany(userId, {
+          where: { type: "EXPENSE" },
+        });
+        if (expenseCategories.length === 0) {
+          throw new Error("No expense categories available");
+        }
+        defaultCategory = expenseCategories[0];
+      }
 
-        // Get recent MercadoPago payments and convert to expenses
-        const mercadoPagoResult =
-          await mercadoPagoService.getRecentExpensePayments(
-            userId,
-            defaultCategory.id,
-            1,
-          );
-
-        // Create expenses from MercadoPago payments, avoiding duplicates
-        const syncResult = await expenseService.createFromMercadoPagoPayments(
+      // Get recent MercadoPago payments and convert to expenses
+      const mercadoPagoResult =
+        await mercadoPagoService.getRecentExpensePayments(
           userId,
-          mercadoPagoResult.expenses,
+          defaultCategory.id,
+          1,
         );
 
-        mercadoPagoSync = {
-          created: syncResult.created.length,
-          skipped: syncResult.skipped.length,
-          errors: syncResult.errors.length,
-        };
-      } catch (error) {
-        console.error("Error syncing MercadoPago payments:", error);
-        mercadoPagoSync = {
-          created: 0,
-          skipped: 0,
-          errors: 1,
-        };
-      }
+      // Create expenses from MercadoPago payments, avoiding duplicates
+      const syncResult = await expenseService.createFromMercadoPagoPayments(
+        userId,
+        mercadoPagoResult.expenses,
+      );
+
+      mercadoPagoSync = {
+        created: syncResult.created.length,
+        skipped: syncResult.skipped.length,
+        errors: syncResult.errors.length,
+      };
+    } catch (error) {
+      console.error("Error syncing MercadoPago payments:", error);
+      mercadoPagoSync = {
+        created: 0,
+        skipped: 0,
+        errors: 1,
+      };
     }
 
     // Build where clause
@@ -190,9 +186,8 @@ export const ExpenseController = {
     };
 
     // Include MercadoPago sync results if sync was performed
-    if (mercadoPagoSync) {
-      responseData.mercadoPagoSync = mercadoPagoSync;
-    }
+
+    responseData.mercadoPagoSync = mercadoPagoSync;
 
     res.status(200).json({
       success: true,
