@@ -29,12 +29,19 @@ interface IncomeFilters {
 interface ExpenseFilters {
   page?: number
   limit?: number
+  search?: string
+  createdFrom?: string
+  createdTo?: string
+  dueFrom?: string
+  dueTo?: string
+  category?: string
   categoryId?: string
+  frequency?: string
+  status?: string
   dueDate?: string
   isPaid?: boolean
   startDate?: string
   endDate?: string
-  search?: string
 }
 
 interface InvestmentFilters {
