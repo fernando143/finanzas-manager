@@ -7,7 +7,7 @@ import {
 } from "@heroicons/react/24/outline";
 import type { Expense } from "../../../types/api";
 import { ExpenseForm } from "./ExpenseForm.component";
-import { ExpenseFilters, type ExpenseFilterParams } from "./ExpenseFilters.component";
+import { ExpenseFilterDropdown, type ExpenseFilterParams } from "./ExpenseFilterDropdown.component";
 import { useExpenses } from "../../../shared/hooks";
 import { Pagination } from "../../../shared/ui/components";
 import { format, parseISO } from "date-fns";
@@ -139,8 +139,8 @@ export const ExpenseList = () => {
         </div>
       </div>
 
-      {/* Expense Filters */}
-      <ExpenseFilters 
+      {/* Expense Filters with new design */}
+      <ExpenseFilterDropdown
         onFiltersChange={handleFiltersChange}
         loading={loading}
         className="mt-6"
