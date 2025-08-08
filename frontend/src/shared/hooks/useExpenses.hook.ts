@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../services/api/client.service';
 import { queryKeys } from '../lib/query-keys';
@@ -83,12 +83,15 @@ export const useExpenses = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<UseExpensesParams>({});
   
-  // Combined filters including page
-  const queryFilters: UseExpensesParams = {
-    ...filters,
-    page: currentPage,
-    limit: 10,
-  };
+  // Combined filters including page - memoized to prevent infinite re-renders
+  const queryFilters = useMemo<UseExpensesParams>(
+    () => ({
+      ...filters,
+      page: currentPage,
+      limit: 10,
+    }),
+    [filters, currentPage]
+  );
 
   // Query for fetching expenses
   const {

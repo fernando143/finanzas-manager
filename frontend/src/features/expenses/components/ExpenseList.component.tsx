@@ -27,7 +27,6 @@ export const ExpenseList = () => {
     currentPage,
     setFilters,
   } = useExpenses();
-  console.log("expenses", expenses);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(
     undefined,
