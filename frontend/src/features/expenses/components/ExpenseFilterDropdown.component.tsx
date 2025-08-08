@@ -164,16 +164,17 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
           width: 36px;
           height: 36px;
           border-radius: 8px;
-          background: ${isOpen ? '#f3f4f6' : 'transparent'};
+          background: ${isOpen ? '#3b82f6' : '#f3f4f6'};
           border: none;
           cursor: pointer;
           transition: all 0.2s;
-          color: #6b7280;
+          color: ${isOpen ? '#ffffff' : '#4b5563'};
+          flex-shrink: 0;
         }
 
         .filter-button:hover {
-          background: #f3f4f6;
-          color: #1f2937;
+          background: ${isOpen ? '#2563eb' : '#e5e7eb'};
+          color: ${isOpen ? '#ffffff' : '#1f2937'};
         }
 
         .filter-button:disabled {
@@ -344,6 +345,16 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
 
           .search-bar {
             padding: 0 10px;
+            gap: 6px;
+          }
+          
+          .search-input {
+            font-size: 16px; /* Prevents zoom on iOS */
+          }
+          
+          .filter-button {
+            min-width: 36px;
+            background: ${isOpen ? '#3b82f6' : '#e5e7eb'};
           }
 
           .date-range {
@@ -377,8 +388,9 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
             className="filter-button"
             onClick={() => setIsOpen(!isOpen)}
             disabled={loading}
+            aria-label="Abrir filtros"
           >
-            <Filter size={20} />
+            <Filter size={20} color={isOpen ? '#ffffff' : '#4b5563'} />
             {activeFiltersCount > 0 && (
               <span className="filter-badge">{activeFiltersCount}</span>
             )}
