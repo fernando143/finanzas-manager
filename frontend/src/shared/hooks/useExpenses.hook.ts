@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../services/api/client.service';
 import { queryKeys } from '../lib/query-keys';
 import type { Expense } from '../../types/api';
+import { useExpenseFiltersStore } from '../../features/expenses/stores';
 
 interface PaginationData {
   page: number;
@@ -77,35 +77,66 @@ const deleteExpenseApi = async (id: string): Promise<void> => {
   }
 };
 
+// Convert date to ISO string with GMT-3 noon (15:00 UTC)
+const toGMT3NoonISO = (dateString: string): string | undefined => {
+  if (!dateString) return undefined;
+  const date = new Date(dateString);
+  date.setUTCHours(15, 0, 0, 0); // Set to 12:00 noon GMT-3 (15:00 UTC)
+  return date.toISOString();
+};
+
 // Main hook
 export const useExpenses = () => {
   const queryClient = useQueryClient();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState<UseExpensesParams>({});
   
-  // Combined filters including page - memoized to prevent infinite re-renders
-  const queryFilters = useMemo<UseExpensesParams>(
-    () => ({
-      ...filters,
-      page: currentPage,
-      limit: 10,
-    }),
-    [filters, currentPage]
-  );
-
-  // Query for fetching expenses
+  // Subscribe to individual filter properties for fine-grained reactivity
+  const search = useExpenseFiltersStore(state => state.filters.search);
+  const createdFrom = useExpenseFiltersStore(state => state.filters.createdFrom);
+  const createdTo = useExpenseFiltersStore(state => state.filters.createdTo);
+  const dueFrom = useExpenseFiltersStore(state => state.filters.dueFrom);
+  const dueTo = useExpenseFiltersStore(state => state.filters.dueTo);
+  const currentPage = useExpenseFiltersStore(state => state.currentPage);
+  
+  // Build API params directly from individual subscriptions
+  const apiParams: UseExpensesParams = {
+    page: currentPage,
+  };
+  
+  if (search) {
+    apiParams.search = search;
+  }
+  
+  if (createdFrom) {
+    const isoDate = toGMT3NoonISO(createdFrom);
+    if (isoDate) apiParams.createdFrom = isoDate;
+  }
+  
+  if (createdTo) {
+    const isoDate = toGMT3NoonISO(createdTo);
+    if (isoDate) apiParams.createdTo = isoDate;
+  }
+  
+  if (dueFrom) {
+    const isoDate = toGMT3NoonISO(dueFrom);
+    if (isoDate) apiParams.dueFrom = isoDate;
+  }
+  
+  if (dueTo) {
+    const isoDate = toGMT3NoonISO(dueTo);
+    if (isoDate) apiParams.dueTo = isoDate;
+  }
+  
   const {
     data,
     isLoading: loading,
     error,
     refetch,
   } = useQuery({
-    queryKey: queryKeys.expenses.list(queryFilters),
-    queryFn: () => fetchExpensesApi(queryFilters),
-    placeholderData: (previousData) => previousData,
+    queryKey: queryKeys.expenses.list(apiParams),
+    queryFn: () => fetchExpensesApi(apiParams),
   });
 
-  // Mutation for creating expenses
+  
   const createMutation = useMutation({
     mutationFn: createExpenseApi,
     onSuccess: () => {
@@ -114,7 +145,7 @@ export const useExpenses = () => {
     },
   });
 
-  // Mutation for updating expenses
+  
   const updateMutation = useMutation({
     mutationFn: updateExpenseApi,
     onSuccess: () => {
@@ -123,7 +154,7 @@ export const useExpenses = () => {
     },
   });
 
-  // Mutation for deleting expenses
+  
   const deleteMutation = useMutation({
     mutationFn: deleteExpenseApi,
     onSuccess: () => {
@@ -132,7 +163,7 @@ export const useExpenses = () => {
     },
   });
 
-  // Helper functions
+  
   const createExpense = async (expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Expense | null> => {
     try {
       const result = await createMutation.mutateAsync(expenseData);
@@ -172,41 +203,15 @@ export const useExpenses = () => {
     await refetch();
   };
 
-  const setPage = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const updateFilters = (newFilters: UseExpensesParams) => {
-    setFilters(newFilters);
-    setCurrentPage(1); // Reset to first page when filters change
-  };
-
-  // Legacy fetchExpenses for compatibility
-  const fetchExpenses = async (params?: UseExpensesParams) => {
-    if (params?.page) {
-      setCurrentPage(params.page);
-    }
-    if (params) {
-      const { page: _page, ...filterParams } = params;
-      setFilters(prev => ({ ...prev, ...filterParams }));
-    }
-    await refetch();
-  };
-
   return {
     expenses: data?.expenses || [],
     loading: loading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending,
     error: error?.message || createMutation.error?.message || updateMutation.error?.message || deleteMutation.error?.message || null,
     pagination: data?.pagination || null,
-    fetchExpenses,
     createExpense,
     updateExpense,
     deleteExpense,
     markAsPaid,
     refreshExpenses,
-    setPage,
-    currentPage,
-    filters,
-    setFilters: updateFilters,
   };
 };

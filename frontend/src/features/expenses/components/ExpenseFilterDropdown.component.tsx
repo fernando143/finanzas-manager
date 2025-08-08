@@ -1,46 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FunnelIcon, MagnifyingGlassIcon, XMarkIcon, CalendarIcon } from '@heroicons/react/24/outline';
-import { useDebounce } from '../../../shared/hooks';
-import { format } from 'date-fns';
-
-export interface ExpenseFilterParams {
-  search?: string;
-  createdFrom?: string;
-  createdTo?: string;
-  dueFrom?: string;
-  dueTo?: string;
-}
+import { useExpenseFiltersStore } from '../stores';
 
 interface ExpenseFilterDropdownProps {
-  onFiltersChange: (filters: ExpenseFilterParams) => void;
   loading?: boolean;
   className?: string;
 }
 
 export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
-  onFiltersChange,
   loading = false,
   className = ''
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
-  // Get first day of current month in YYYY-MM-DD format
-  const getFirstDayOfMonth = () => {
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    return format(firstDay, 'yyyy-MM-dd');
-  };
 
-  // State for all filter fields
-  const [search, setSearch] = useState('');
-  const [createdFrom, setCreatedFrom] = useState(getFirstDayOfMonth());
-  const [createdTo, setCreatedTo] = useState('');
-  const [dueFrom, setDueFrom] = useState('');
-  const [dueTo, setDueTo] = useState('');
-  
-  // Debounced search value
-  const debouncedSearch = useDebounce(search, 500);
+  // Get filter state and actions from Zustand store
+  const filters = useExpenseFiltersStore(state => state.filters);
+  const setSearchInput = useExpenseFiltersStore(state => state.setSearchInput);
+  const executeSearch = useExpenseFiltersStore(state => state.executeSearch);
+  const updateFilter = useExpenseFiltersStore(state => state.updateFilter);
+  const clearFilters = useExpenseFiltersStore(state => state.clearFilters);
+  const getActiveFilterCount = useExpenseFiltersStore(state => state.getActiveFilterCount);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -53,67 +33,32 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Convert date to ISO string with GMT-3 noon (15:00 UTC)
-  const toGMT3NoonISO = (dateString: string) => {
-    if (!dateString) return undefined;
-    const date = new Date(dateString);
-    date.setUTCHours(15, 0, 0, 0); // Set to 12:00 noon GMT-3 (15:00 UTC)
-    return date.toISOString();
-  };
-
-  // Apply filters automatically when search changes (debounced)
-  useEffect(() => {
-    const filters: ExpenseFilterParams = {};
-    
-    // Only add filters that have values
-    if (debouncedSearch) filters.search = debouncedSearch;
-    if (createdFrom) filters.createdFrom = toGMT3NoonISO(createdFrom);
-    if (createdTo) filters.createdTo = toGMT3NoonISO(createdTo);
-    if (dueFrom) filters.dueFrom = toGMT3NoonISO(dueFrom);
-    if (dueTo) filters.dueTo = toGMT3NoonISO(dueTo);
-    
-    onFiltersChange(filters);
-  }, [debouncedSearch, createdFrom, createdTo, dueFrom, dueTo, onFiltersChange]);
 
   const handleApplyFilters = () => {
-    const filters: ExpenseFilterParams = {};
-    
-    // Only add filters that have values
-    if (search) filters.search = search;
-    if (createdFrom) filters.createdFrom = toGMT3NoonISO(createdFrom);
-    if (createdTo) filters.createdTo = toGMT3NoonISO(createdTo);
-    if (dueFrom) filters.dueFrom = toGMT3NoonISO(dueFrom);
-    if (dueTo) filters.dueTo = toGMT3NoonISO(dueTo);
-    
-    onFiltersChange(filters);
+    // Filters are already applied in real-time, just close the dropdown
     setIsOpen(false);
   };
 
+  const handleSearch = () => {
+    executeSearch();
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    updateFilter('search', '');
+  };
+
   const handleClearFilters = () => {
-    const defaultCreatedFrom = getFirstDayOfMonth();
-    setSearch('');
-    setCreatedFrom(defaultCreatedFrom);
-    setCreatedTo('');
-    setDueFrom('');
-    setDueTo('');
-    
-    // Apply default filter (first day of month)
-    onFiltersChange({
-      createdFrom: toGMT3NoonISO(defaultCreatedFrom)
-    });
+    clearFilters();
   };
 
-  // Track active filter count
-  const getActiveFilterCount = () => {
-    let count = 0;
-    if (search) count++;
-    if (createdFrom !== getFirstDayOfMonth()) count++;
-    if (createdTo) count++;
-    if (dueFrom) count++;
-    if (dueTo) count++;
-    return count;
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      executeSearch();
+    }
   };
 
+  // Get active filter count from store
   const activeFiltersCount = getActiveFilterCount();
 
   return (
@@ -368,24 +313,35 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
 
       <div className="filter-dropdown-container">
         <div className="search-bar">
-          <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 flex-shrink-0" />
           <input
             type="text"
             className="search-input"
             placeholder="Buscar por descripción..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={filters.searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             disabled={loading}
           />
-          {search && (
+          {filters.searchInput && (
             <button
-              onClick={() => setSearch('')}
-              className="flex items-center justify-center"
+              onClick={handleClearSearch}
+              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded"
               disabled={loading}
+              type="button"
+              aria-label="Limpiar búsqueda"
             >
               <XMarkIcon className="h-5 w-5 text-gray-400" />
             </button>
           )}
+          <button
+            onClick={handleSearch}
+            className="flex items-center justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors ml-2"
+            disabled={loading || filters.searchInput === filters.search}
+            type="button"
+            aria-label="Buscar"
+          >
+            <MagnifyingGlassIcon className="h-5 w-5" />
+          </button>
           <button
             className="filter-button"
             onClick={() => setIsOpen(!isOpen)}
@@ -422,8 +378,8 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
                 <input
                   type="date"
                   className="filter-input"
-                  value={createdFrom}
-                  onChange={(e) => setCreatedFrom(e.target.value)}
+                  value={filters.createdFrom}
+                  onChange={(e) => updateFilter('createdFrom', e.target.value)}
                   disabled={loading}
                 />
               </div>
@@ -432,9 +388,9 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
                 <input
                   type="date"
                   className="filter-input"
-                  value={createdTo}
-                  onChange={(e) => setCreatedTo(e.target.value)}
-                  min={createdFrom}
+                  value={filters.createdTo}
+                  onChange={(e) => updateFilter('createdTo', e.target.value)}
+                  min={filters.createdFrom}
                   disabled={loading}
                 />
               </div>
@@ -452,8 +408,8 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
                 <input
                   type="date"
                   className="filter-input"
-                  value={dueFrom}
-                  onChange={(e) => setDueFrom(e.target.value)}
+                  value={filters.dueFrom}
+                  onChange={(e) => updateFilter('dueFrom', e.target.value)}
                   disabled={loading}
                 />
               </div>
@@ -462,9 +418,9 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
                 <input
                   type="date"
                   className="filter-input"
-                  value={dueTo}
-                  onChange={(e) => setDueTo(e.target.value)}
-                  min={dueFrom}
+                  value={filters.dueTo}
+                  onChange={(e) => updateFilter('dueTo', e.target.value)}
+                  min={filters.dueFrom}
                   disabled={loading}
                 />
               </div>

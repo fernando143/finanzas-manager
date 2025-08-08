@@ -7,12 +7,13 @@ import {
 } from "@heroicons/react/24/outline";
 import type { Expense } from "../../../types/api";
 import { ExpenseForm } from "./ExpenseForm.component";
-import { ExpenseFilterDropdown, type ExpenseFilterParams } from "./ExpenseFilterDropdown.component";
+import { ExpenseFilterDropdown } from "./ExpenseFilterDropdown.component";
 import { useExpenses } from "../../../shared/hooks";
 import { Pagination } from "../../../shared/ui/components";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { formatCurrencyARS } from "../../../shared/utils";
+import { useExpenseFiltersStore } from "../stores/expenseFilters.store";
 
 export const ExpenseList = () => {
   const {
@@ -23,18 +24,15 @@ export const ExpenseList = () => {
     createExpense,
     updateExpense,
     deleteExpense,
-    setPage,
-    currentPage,
-    setFilters,
+  
   } = useExpenses();
+  const setPage = useExpenseFiltersStore(state => state.setPage);
+  const currentPage = useExpenseFiltersStore(state => state.currentPage)
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(
     undefined,
   );
 
-  const handleFiltersChange = (filters: ExpenseFilterParams) => {
-    setFilters(filters);
-  };
 
   const handleSaveExpense = async (
     expenseData: Omit<Expense, "id" | "userId" | "createdAt" | "updatedAt">,
@@ -138,14 +136,13 @@ export const ExpenseList = () => {
         </div>
       </div>
 
-      {/* Expense Filters with new design */}
-      <ExpenseFilterDropdown
-        onFiltersChange={handleFiltersChange}
+      
+    <ExpenseFilterDropdown
         loading={loading}
         className="mt-6"
       />
 
-      {/* Error alert */}
+      
       {error && (
         <div className="mt-4 rounded-md bg-red-50 p-4">
           <div className="flex">
@@ -164,7 +161,7 @@ export const ExpenseList = () => {
         </div>
       )}
 
-      {/* Loading indicator */}
+
       {loading && (
         <div className="mt-8 text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -280,7 +277,7 @@ export const ExpenseList = () => {
         </div>
       </div>
 
-      {/* Pagination */}
+      
       {pagination && (
         <Pagination
           currentPage={currentPage}
