@@ -58,7 +58,7 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
     return date.toISOString();
   };
 
-  // Apply filters automatically when search changes (debounced)
+  // Apply filters automatically when search changes (debounced) or dates change
   useEffect(() => {
     const filters: ExpenseFilterParams = {};
     

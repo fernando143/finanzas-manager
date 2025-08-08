@@ -193,8 +193,8 @@ export const useExpenses = (): UseExpensesReturn => {
   }, [fetchExpenses])
 
   const setPage = useCallback((page: number) => {
-    fetchExpenses({ page })
-  }, [fetchExpenses])
+    setCurrentPage(page)
+  }, [])
 
   // Update filters and refetch
   const updateFilters = useCallback((newFilters: UseExpensesParams) => {
@@ -202,10 +202,65 @@ export const useExpenses = (): UseExpensesReturn => {
     setCurrentPage(1) // Reset to first page when filters change
   }, [])
 
-  // Auto-fetch on mount and when filters change
+  // Auto-fetch on mount and when filters or page changes
   useEffect(() => {
-    fetchExpenses()
-  }, [fetchExpenses])
+    const loadExpenses = async () => {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const queryParams = new URLSearchParams()
+        queryParams.append('page', currentPage.toString())
+        queryParams.append('limit', '10')
+        
+        // Add filter parameters
+        if (filters.search) {
+          queryParams.append('search', filters.search)
+        }
+        if (filters.createdFrom) {
+          queryParams.append('createdFrom', filters.createdFrom)
+        }
+        if (filters.createdTo) {
+          queryParams.append('createdTo', filters.createdTo)
+        }
+        if (filters.dueFrom) {
+          queryParams.append('dueFrom', filters.dueFrom)
+        }
+        if (filters.dueTo) {
+          queryParams.append('dueTo', filters.dueTo)
+        }
+        if (filters.category) {
+          queryParams.append('category', filters.category)
+        }
+        if (filters.frequency) {
+          queryParams.append('frequency', filters.frequency)
+        }
+        if (filters.status) {
+          queryParams.append('status', filters.status)
+        }
+        
+        const response = await apiClient.get<{expenses: Expense[], pagination: PaginationData}>(`/expenses?${queryParams}`)
+        console.log('expenses response', response)
+        
+        if (response.success && response.data) {
+          setExpenses(response.data.expenses)
+          setPagination(response.data.pagination)
+        } else {
+          setError(response.error || 'Error al obtener gastos')
+          setExpenses([])
+          setPagination(null)
+        }
+      } catch (_) {
+        setError('Error de conexión al obtener gastos')
+        setExpenses([])
+        setPagination(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadExpenses()
+  }, [filters, currentPage]) // Dependencies are now direct state values, not functions
 
   return {
     expenses,
