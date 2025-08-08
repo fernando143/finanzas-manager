@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Filter, Calendar, X } from 'lucide-react';
-import { FunnelIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon, MagnifyingGlassIcon, XMarkIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { useDebounce } from '../../../shared/hooks';
 import { format } from 'date-fns';
 
@@ -353,8 +352,11 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
           }
           
           .filter-button {
-            min-width: 36px;
-            background: ${isOpen ? '#3b82f6' : '#e5e7eb'};
+            min-width: 44px !important;
+            width: 44px !important;
+            height: 44px !important;
+            background: ${isOpen ? '#3b82f6' : '#f3f4f6'} !important;
+            border: 1px solid ${isOpen ? '#2563eb' : '#e5e7eb'} !important;
           }
 
           .date-range {
@@ -366,7 +368,7 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
 
       <div className="filter-dropdown-container">
         <div className="search-bar">
-          <Search size={20} color="#9ca3af" />
+          <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 flex-shrink-0" />
           <input
             type="text"
             className="search-input"
@@ -381,7 +383,7 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
               className="flex items-center justify-center"
               disabled={loading}
             >
-              <X size={18} color="#9ca3af" />
+              <XMarkIcon className="h-5 w-5 text-gray-400" />
             </button>
           )}
           <button
@@ -390,7 +392,7 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
             disabled={loading}
             aria-label="Abrir filtros"
           >
-            <Filter size={20} color={isOpen ? '#ffffff' : '#4b5563'} />
+            <FunnelIcon className={`h-5 w-5 ${isOpen ? 'text-white' : 'text-gray-700'} flex-shrink-0`} />
             {activeFiltersCount > 0 && (
               <span className="filter-badge">{activeFiltersCount}</span>
             )}
@@ -411,7 +413,7 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
 
           <div className="filter-group">
             <label className="filter-label">
-              <Calendar size={16} />
+              <CalendarIcon className="h-4 w-4 text-gray-500" />
               Fecha de Creación
             </label>
             <div className="date-range">
@@ -441,7 +443,7 @@ export const ExpenseFilterDropdown: React.FC<ExpenseFilterDropdownProps> = ({
 
           <div className="filter-group">
             <label className="filter-label">
-              <Calendar size={16} />
+              <CalendarIcon className="h-4 w-4 text-gray-500" />
               Fecha de Vencimiento
             </label>
             <div className="date-range">
