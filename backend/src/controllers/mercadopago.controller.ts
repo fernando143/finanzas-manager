@@ -132,10 +132,17 @@ export const MercadoPagoController = {
         defaultCategory = expenseCategories[0]
       }
 
+      // Calculate date from days parameter if provided
+      let dateFrom: Date | undefined
+      if (days) {
+        dateFrom = new Date()
+        dateFrom.setDate(dateFrom.getDate() - days)
+      }
+      
       const result = await mercadoPagoService.getRecentExpensePayments(
         userId, 
         defaultCategory.id, 
-        days
+        dateFrom
       )
 
       res.status(200).json({

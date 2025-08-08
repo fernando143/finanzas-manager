@@ -138,12 +138,16 @@ export const ExpenseController = {
         defaultCategory = expenseCategories[0];
       }
 
-      // Get recent MercadoPago payments and convert to expenses
+      // Get MercadoPago payments from the first day of current month
+      const firstDayOfMonth = new Date();
+      firstDayOfMonth.setDate(1);
+      firstDayOfMonth.setHours(0, 0, 0, 0);
+      
       const mercadoPagoResult =
         await mercadoPagoService.getRecentExpensePayments(
           userId,
           defaultCategory.id,
-          1,
+          firstDayOfMonth,
         );
 
       // Create expenses from MercadoPago payments, avoiding duplicates
