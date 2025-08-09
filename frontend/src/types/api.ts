@@ -21,6 +21,7 @@ export type Income = {
   description: string;
   amount: number;
   categoryId: string; // Changed from 'category' to 'categoryId' to match API
+  category: Category; // Populated category object from the API
   frequency: 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY' | 'ANNUAL' | 'ONE_TIME'; // Changed to uppercase to match API
   incomeDate: string; // Changed from 'income_date' to 'incomeDate' to match API (camelCase)
   nextDate?: string; // When the next recurring payment is due (for scheduling)
@@ -34,6 +35,7 @@ export type Expense = {
   description: string;
   amount: number;
   categoryId: string; // Changed from 'category' to 'categoryId' to match API
+  category: Category; // Populated category object from the API
   frequency: 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY' | 'ANNUAL' | 'ONE_TIME'; // Changed to uppercase to match API
   dueDate?: string;
   status: 'PENDING' | 'PAID' | 'OVERDUE' | 'PARTIAL'; // Changed to uppercase to match backend API

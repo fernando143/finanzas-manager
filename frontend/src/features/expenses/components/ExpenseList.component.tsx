@@ -6,7 +6,8 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import type { Expense } from "../../../types/api";
-import { ExpenseForm } from "./ExpenseForm.component";
+import { CreateExpenseForm } from "./CreateExpenseForm";
+import { EditExpenseForm } from "./EditExpenseForm";
 import { ExpenseFilterDropdown } from "./ExpenseFilterDropdown.component";
 import { useExpenses } from "../../../shared/hooks";
 import { Pagination } from "../../../shared/ui/components";
@@ -28,34 +29,46 @@ export const ExpenseList = () => {
   } = useExpenses();
   const setPage = useExpenseFiltersStore(state => state.setPage);
   const currentPage = useExpenseFiltersStore(state => state.currentPage)
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(
     undefined,
   );
 
 
-  const handleSaveExpense = async (
-    expenseData: Omit<Expense, "id" | "userId" | "createdAt" | "updatedAt">,
+  const handleCreateExpense = async (
+    expenseData: Omit<Expense, "id" | "userId" | "createdAt" | "updatedAt" | "category">,
   ) => {
-    let success = false;
+    const result = await createExpense(expenseData);
+    const success = result !== null;
 
-    if (editingExpense) {
-      const result = await updateExpense(editingExpense.id, expenseData);
-      success = result !== null;
-    } else {
-      const result = await createExpense(expenseData);
-      success = result !== null;
+    if (success) {
+      setIsCreateFormOpen(false);
     }
+  };
+
+  const handleUpdateExpense = async (
+    expenseData: Omit<Expense, "id" | "userId" | "createdAt" | "updatedAt" | "category">,
+  ) => {
+    if (!editingExpense) return;
+    
+    const result = await updateExpense(editingExpense.id, expenseData);
+    const success = result !== null;
 
     if (success) {
       setEditingExpense(undefined);
-      setIsFormOpen(false);
+      setIsEditFormOpen(false);
     }
   };
 
   const handleEdit = (expense: Expense) => {
     setEditingExpense(expense);
-    setIsFormOpen(true);
+    setIsEditFormOpen(true);
+  };
+
+  const handleCreateNew = () => {
+    setEditingExpense(undefined);
+    setIsCreateFormOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -112,8 +125,6 @@ export const ExpenseList = () => {
     }
   };
 
-  console.log('isLoading', loading)
-
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
@@ -128,7 +139,7 @@ export const ExpenseList = () => {
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <button
             type="button"
-            onClick={() => setIsFormOpen(true)}
+            onClick={handleCreateNew}
             disabled={loading}
             className="flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -194,6 +205,9 @@ export const ExpenseList = () => {
                       Vencimiento
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      Creado
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
                       Estado
                     </th>
                     <th className="relative px-6 py-3">
@@ -216,7 +230,7 @@ export const ExpenseList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">
-                          {expense.categoryId || "Sin categoría"}
+                          {expense.category.name}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -232,6 +246,13 @@ export const ExpenseList = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {expense.dueDate
                           ? format(parseISO(expense.dueDate), "dd MMM yyyy", {
+                              locale: es,
+                            })
+                          : "-"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {expense.createdAt
+                          ? format(parseISO(expense.createdAt), "dd MMM yyyy", {
                               locale: es,
                             })
                           : "-"}
@@ -264,7 +285,7 @@ export const ExpenseList = () => {
                   {expenses.length === 0 && !loading && (
                     <tr>
                       <td
-                        colSpan={7}
+                        colSpan={8}
                         className="px-6 py-4 text-center text-gray-500"
                       >
                         No se encontraron egresos con los filtros aplicados
@@ -291,15 +312,23 @@ export const ExpenseList = () => {
         />
       )}
 
-      <ExpenseForm
-        expense={editingExpense}
-        isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setEditingExpense(undefined);
-        }}
-        onSave={handleSaveExpense}
+      <CreateExpenseForm
+        isOpen={isCreateFormOpen}
+        onClose={() => setIsCreateFormOpen(false)}
+        onSave={handleCreateExpense}
       />
+      
+      {editingExpense && (
+        <EditExpenseForm
+          expense={editingExpense}
+          isOpen={isEditFormOpen}
+          onClose={() => {
+            setIsEditFormOpen(false);
+            setEditingExpense(undefined);
+          }}
+          onSave={handleUpdateExpense}
+        />
+      )}
     </div>
   );
 };

@@ -20,8 +20,8 @@ interface UseIncomesReturn {
   error: string | null
   pagination: PaginationData | null
   fetchIncomes: (params?: UseIncomesParams) => Promise<void>
-  createIncome: (income: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => Promise<Income | null>
-  updateIncome: (id: string, income: Partial<Omit<Income, 'id' | 'userId' | 'createdAt'>>) => Promise<Income | null>
+  createIncome: (income: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'>) => Promise<Income | null>
+  updateIncome: (id: string, income: Partial<Omit<Income, 'id' | 'userId' | 'createdAt' | 'category'>>) => Promise<Income | null>
   deleteIncome: (id: string) => Promise<boolean>
   refreshIncomes: () => Promise<void>
   setPage: (page: number) => void
@@ -74,7 +74,7 @@ export const useIncomes = (): UseIncomesReturn => {
     }
   }, [currentPage])
 
-  const createIncome = useCallback(async (incomeData: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Income | null> => {
+  const createIncome = useCallback(async (incomeData: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'>): Promise<Income | null> => {
     setLoading(true)
     setError(null)
 
@@ -106,7 +106,7 @@ export const useIncomes = (): UseIncomesReturn => {
     }
   }, [])
 
-  const updateIncome = useCallback(async (id: string, incomeData: Partial<Omit<Income, 'id' | 'userId' | 'createdAt'>>): Promise<Income | null> => {
+  const updateIncome = useCallback(async (id: string, incomeData: Partial<Omit<Income, 'id' | 'userId' | 'createdAt' | 'category'>>): Promise<Income | null> => {
     setLoading(true)
     setError(null)
 

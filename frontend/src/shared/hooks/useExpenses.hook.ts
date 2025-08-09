@@ -49,7 +49,7 @@ const fetchExpensesApi = async (filters: UseExpensesParams): Promise<ExpensesRes
   return response.data;
 };
 
-const createExpenseApi = async (expense: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Expense> => {
+const createExpenseApi = async (expense: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'>): Promise<Expense> => {
   const response = await apiClient.post<Expense>('/expenses', expense);
   
   if (!response.success || !response.data) {
@@ -59,7 +59,7 @@ const createExpenseApi = async (expense: Omit<Expense, 'id' | 'userId' | 'create
   return response.data;
 };
 
-const updateExpenseApi = async ({ id, data }: { id: string; data: Partial<Omit<Expense, 'id' | 'userId' | 'createdAt'>> }): Promise<Expense> => {
+const updateExpenseApi = async ({ id, data }: { id: string; data: Partial<Omit<Expense, 'id' | 'userId' | 'createdAt' | 'category'>> }): Promise<Expense> => {
   const response = await apiClient.patch<Expense>(`/expenses/${id}`, data);
   
   if (!response.success || !response.data) {
@@ -165,7 +165,7 @@ export const useExpenses = () => {
   });
 
   
-  const createExpense = async (expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Expense | null> => {
+  const createExpense = async (expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'>): Promise<Expense | null> => {
     try {
       const result = await createMutation.mutateAsync(expenseData);
       return result;
@@ -175,7 +175,7 @@ export const useExpenses = () => {
     }
   };
 
-  const updateExpense = async (id: string, expenseData: Partial<Omit<Expense, 'id' | 'userId' | 'createdAt'>>): Promise<Expense | null> => {
+  const updateExpense = async (id: string, expenseData: Partial<Omit<Expense, 'id' | 'userId' | 'createdAt' | 'category'>>): Promise<Expense | null> => {
     try {
       const result = await updateMutation.mutateAsync({ id, data: expenseData });
       return result;

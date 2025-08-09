@@ -9,7 +9,7 @@ interface IncomeFormProps {
   income?: Income
   isOpen: boolean
   onClose: () => void
-  onSave: (income: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => void
+  onSave: (income: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'>) => void
 }
 
 export const IncomeForm = ({ income, isOpen, onClose, onSave }: IncomeFormProps) => {
@@ -60,7 +60,7 @@ export const IncomeForm = ({ income, isOpen, onClose, onSave }: IncomeFormProps)
       }
     }
     
-    const incomeData: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt'> = {
+    const incomeData: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'> = {
       description: formData.description,
       amount: formData.amount,
       categoryId: formData.categoryId,

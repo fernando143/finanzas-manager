@@ -1,9 +1,11 @@
-export { ExpenseForm } from './ExpenseForm.component';
+export { CreateExpenseForm } from './CreateExpenseForm';
+export { EditExpenseForm } from './EditExpenseForm';
 export { ExpenseList } from './ExpenseList.component';
 export { DueDatesCalendar } from './DueDatesCalendar.component';
 export { ExpenseFilters, type ExpenseFilterParams } from './ExpenseFilters.component';
 export { ExpenseFilterDropdown } from './ExpenseFilterDropdown.component';
-export { default as ExpenseFormDefault } from './ExpenseForm.component';
+export { default as CreateExpenseFormDefault } from './CreateExpenseForm';
+export { default as EditExpenseFormDefault } from './EditExpenseForm';
 export { default as ExpenseListDefault } from './ExpenseList.component';
 export { default as DueDatesCalendarDefault } from './DueDatesCalendar.component';
 export { default as ExpenseFiltersDefault } from './ExpenseFilters.component';

@@ -23,7 +23,7 @@ export const IncomeList = () => {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingIncome, setEditingIncome] = useState<Income | undefined>(undefined)
 
-  const handleSaveIncome = async (incomeData: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => {
+  const handleSaveIncome = async (incomeData: Omit<Income, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'>) => {
     console.log('💾 Saving income from form:', incomeData)
     let success = false
     
