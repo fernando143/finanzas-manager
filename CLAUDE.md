@@ -20,6 +20,5 @@ Fianzas Manager is a personal finance management web application built with a Ty
 - Focus on implementing only the essential functionality
 - Avoid over-engineering features
 - Prioritize simplicity and core user needs
-
-When users need to deploy, use sub agent deploy-orchestrator to manage the deployment process.
-When users need manage git, use sub agent git-flow-manager to handle git operations.
+- Think carefully and only action the specific task I have given you with the most concise and elegant solution that changes as little code as possible.
+- Use sub agents to preserve to keep clean main context

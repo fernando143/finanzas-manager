@@ -112,6 +112,8 @@ export const ExpenseList = () => {
     }
   };
 
+  console.log('isLoading', loading)
+
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
@@ -162,14 +164,13 @@ export const ExpenseList = () => {
       )}
 
 
-      {loading && (
+      {loading ? (
         <div className="mt-8 text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <p className="mt-2 text-sm text-gray-500">Cargando gastos...</p>
         </div>
-      )}
-
-      {/* Expense list */}
+      ) : (
+      /* Expense list */
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -276,6 +277,7 @@ export const ExpenseList = () => {
           </div>
         </div>
       </div>
+      )}
 
       
       {pagination && (

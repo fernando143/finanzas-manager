@@ -128,7 +128,8 @@ export const useExpenses = () => {
   
   const {
     data,
-    isLoading: loading,
+    isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery({
@@ -205,7 +206,7 @@ export const useExpenses = () => {
 
   return {
     expenses: data?.expenses || [],
-    loading: loading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending,
+    loading: isLoading || isFetching || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending,
     error: error?.message || createMutation.error?.message || updateMutation.error?.message || deleteMutation.error?.message || null,
     pagination: data?.pagination || null,
     createExpense,
