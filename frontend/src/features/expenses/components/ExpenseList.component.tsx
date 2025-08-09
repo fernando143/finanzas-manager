@@ -13,7 +13,7 @@ import { useExpenses } from "../../../shared/hooks";
 import { Pagination } from "../../../shared/ui/components";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { formatCurrencyARS } from "../../../shared/utils";
+import { formatCurrencyARS, truncateText } from "../../../shared/utils";
 import { useExpenseFiltersStore } from "../stores/expenseFilters.store";
 
 export const ExpenseList = () => {
@@ -181,123 +181,214 @@ export const ExpenseList = () => {
           <p className="mt-2 text-sm text-gray-500">Cargando gastos...</p>
         </div>
       ) : (
-      /* Expense list */
-      <div className="mt-8 flow-root">
-        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                      Descripción
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                      Categoría
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                      Monto
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                      Frecuencia
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                      Vencimiento
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                      Creado
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                      Estado
-                    </th>
-                    <th className="relative px-6 py-3">
-                      <span className="sr-only">Acciones</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {expenses.map((expense) => (
-                    <tr key={expense.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {expense.description}
-                          {expense.mercadoPagoPaymentId && (
-                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                              MP
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">
-                          {expense.category.name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-red-600">
-                          {formatCurrencyARS(expense.amount)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">
-                          {formatFrequency(expense.frequency)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {expense.dueDate
-                          ? format(parseISO(expense.dueDate), "dd MMM yyyy", {
-                              locale: es,
-                            })
-                          : "-"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {expense.createdAt
-                          ? format(parseISO(expense.createdAt), "dd MMM yyyy", {
-                              locale: es,
-                            })
-                          : "-"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(expense.status)}`}
-                        >
-                          {getStatusText(expense.status)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => handleEdit(expense)}
-                            className="text-blue-600 hover:text-blue-900"
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(expense.id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {expenses.length === 0 && !loading && (
-                    <tr>
-                      <td
-                        colSpan={8}
-                        className="px-6 py-4 text-center text-gray-500"
+      <>
+        {/* Mobile Card View - Optimized for iOS Safari */}
+        <div className="mt-6 sm:hidden">
+          <div className="space-y-3">
+            {expenses.map((expense) => (
+              <div
+                key={expense.id}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 touch-manipulation"
+              >
+                {/* Header with description and actions */}
+                <div className="mb-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 mr-2">
+                      <h3 className="text-base font-semibold text-gray-900 truncate">
+                        {truncateText(expense.description, 25)}
+                        {expense.mercadoPagoPaymentId && (
+                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                            MP
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-0.5">
+                        {expense.category.name}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-1 flex-shrink-0">
+                      <button
+                        onClick={() => handleEdit(expense)}
+                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                        aria-label="Editar egreso"
                       >
-                        No se encontraron egresos con los filtros aplicados
-                      </td>
+                        <PencilIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(expense.id)}
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                        aria-label="Eliminar egreso"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Amount and Status */}
+                <div className="flex justify-between items-center mb-3">
+                  <div className="text-lg font-bold text-red-600">
+                    {formatCurrencyARS(expense.amount)}
+                  </div>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(expense.status)}`}
+                  >
+                    {getStatusText(expense.status)}
+                  </span>
+                </div>
+
+                {/* Details Row */}
+                <div className="flex justify-between text-xs border-t pt-3 mt-3">
+                  <div className="text-center">
+                    <p className="text-gray-500">Frecuencia</p>
+                    <p className="font-medium text-gray-900">{formatFrequency(expense.frequency)}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-gray-500">Vencimiento</p>
+                    <p className="font-medium text-gray-900">
+                      {expense.dueDate
+                        ? format(parseISO(expense.dueDate), "dd MMM", { locale: es })
+                        : "-"}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-gray-500">Creado</p>
+                    <p className="font-medium text-gray-900">
+                      {expense.createdAt
+                        ? format(parseISO(expense.createdAt), "dd MMM", { locale: es })
+                        : "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            {expenses.length === 0 && !loading && (
+              <div className="text-center py-8 text-gray-500">
+                <p>No se encontraron egresos con los filtros aplicados</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden sm:block mt-8 flow-root">
+          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                <table className="min-w-full divide-y divide-gray-300">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Descripción
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Categoría
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Monto
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Frecuencia
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Vencimiento
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Creado
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Estado
+                      </th>
+                      <th className="relative px-6 py-3">
+                        <span className="sr-only">Acciones</span>
+                      </th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {expenses.map((expense) => (
+                      <tr key={expense.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {truncateText(expense.description, 30)}
+                            {expense.mercadoPagoPaymentId && (
+                              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                MP
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500">
+                            {expense.category.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-red-600">
+                            {formatCurrencyARS(expense.amount)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500">
+                            {formatFrequency(expense.frequency)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {expense.dueDate
+                            ? format(parseISO(expense.dueDate), "dd MMM yyyy", {
+                                locale: es,
+                              })
+                            : "-"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {expense.createdAt
+                            ? format(parseISO(expense.createdAt), "dd MMM yyyy", {
+                                locale: es,
+                              })
+                            : "-"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(expense.status)}`}
+                          >
+                            {getStatusText(expense.status)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleEdit(expense)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              <PencilIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(expense.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {expenses.length === 0 && !loading && (
+                      <tr>
+                        <td
+                          colSpan={8}
+                          className="px-6 py-4 text-center text-gray-500"
+                        >
+                          No se encontraron egresos con los filtros aplicados
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
       )}
 
       

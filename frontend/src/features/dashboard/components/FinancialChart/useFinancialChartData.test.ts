@@ -24,6 +24,13 @@ describe('useFinancialChartData', () => {
         description: "sueldo",
         amount: 4700000,
         categoryId: "sueldo-category-id",
+        category: {
+          id: "sueldo-category-id",
+          name: "Salary",
+          type: "INCOME",
+          createdAt: "2025-07-15T12:00:00.000Z",
+          updatedAt: "2025-07-15T12:00:00.000Z"
+        },
         frequency: "MONTHLY",
         incomeDate: "2025-08-01",
         userId: "1",
@@ -228,6 +235,13 @@ describe('useFinancialChartData', () => {
           description: "test income",
           amount: 1000000,
           categoryId: "test-category-id",
+          category: {
+            id: "test-category-id",
+            name: "Test Category",
+            type: "INCOME",
+            createdAt: "2025-07-15T12:00:00.000Z",
+            updatedAt: "2025-07-15T12:00:00.000Z"
+          },
           frequency: "MONTHLY",
           incomeDate: "2025-08-01", // Same date as mock date
           userId: "1",
@@ -267,6 +281,13 @@ describe('useFinancialChartData', () => {
         description: "sueldo",
         amount: 4700000,
         categoryId: "sueldo-category-id",
+        category: {
+          id: "sueldo-category-id",
+          name: "Salary",
+          type: "INCOME",
+          createdAt: "2025-07-15T12:00:00.000Z",
+          updatedAt: "2025-07-15T12:00:00.000Z"
+        },
         frequency: "MONTHLY",
         incomeDate: "2025-08-01",
         userId: "1",
@@ -312,6 +333,13 @@ describe('useFinancialChartData', () => {
         description: "test income",
         amount: 500,
         categoryId: "test-category-id",
+        category: {
+          id: "test-category-id",
+          name: "Test Category",
+          type: "INCOME",
+          createdAt: "2025-07-15T12:00:00.000Z",
+          updatedAt: "2025-07-15T12:00:00.000Z"
+        },
         frequency: "MONTHLY",
         incomeDate: "2025-08-01",
         userId: "1",
@@ -326,6 +354,13 @@ describe('useFinancialChartData', () => {
         description: "test expense",
         amount: 10,
         categoryId: "Test",
+        category: {
+          id: "Test",
+          name: "Test Expense",
+          type: "EXPENSE",
+          createdAt: "2025-07-15T12:00:00.000Z",
+          updatedAt: "2025-07-15T12:00:00.000Z"
+        },
         dueDate: "2025-08-02",
         userId: "1",
         id: "expense-1",
