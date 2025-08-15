@@ -11,6 +11,7 @@ const ExpenseCreateSchema = z.object({
   dueDate: z.string().datetime().optional(),
   status: z.enum(['PENDING', 'PAID', 'OVERDUE', 'PARTIAL']).default('PENDING'),
   mercadoPagoPaymentId: z.string().optional(),
+  collectorId: z.string().optional(),
 })
 
 const ExpenseUpdateSchema = ExpenseCreateSchema.partial()
@@ -18,7 +19,9 @@ const ExpenseUpdateSchema = ExpenseCreateSchema.partial()
 export class ExpenseService {
   async create(userId: string, data: z.infer<typeof ExpenseCreateSchema>): Promise<Expense> {
     // Validar datos
+    console.log('Service received data:', data);
     const validatedData = ExpenseCreateSchema.parse(data)
+    console.log('Service validated data:', validatedData);
     
     // Verificar que la categoría existe y pertenece al usuario o es global
     const category = await prisma.category.findFirst({
@@ -41,10 +44,12 @@ export class ExpenseService {
         ...validatedData,
         dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
         mercadoPagoPaymentId: validatedData.mercadoPagoPaymentId || null,
+        collectorId: validatedData.collectorId || null,
         userId,
       },
       include: {
         category: true,
+        collector: true,
       },
     })
   }
@@ -65,6 +70,7 @@ export class ExpenseService {
       orderBy: options?.orderBy || { dueDate: 'asc' },
       include: {
         category: true,
+        collector: true,
       },
     })
   }
@@ -74,6 +80,7 @@ export class ExpenseService {
       where: { id, userId },
       include: {
         category: true,
+        collector: true,
       },
     })
   }
@@ -114,6 +121,7 @@ export class ExpenseService {
       },
       include: {
         category: true,
+        collector: true,
       },
     })
   }
@@ -167,6 +175,7 @@ export class ExpenseService {
       },
       include: {
         category: true,
+        collector: true,
       },
       orderBy: { dueDate: 'asc' },
     })
@@ -190,6 +199,7 @@ export class ExpenseService {
       },
       include: {
         category: true,
+        collector: true,
       },
       orderBy: { dueDate: 'asc' },
     })
@@ -209,6 +219,7 @@ export class ExpenseService {
       },
       include: {
         category: true,
+        collector: true,
       },
       orderBy: { dueDate: 'asc' },
     })
@@ -223,6 +234,7 @@ export class ExpenseService {
       },
       include: {
         category: true,
+        collector: true,
       },
     })
   }

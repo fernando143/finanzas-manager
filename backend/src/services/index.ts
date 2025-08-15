@@ -15,6 +15,9 @@ export { mercadoPagoService } from './mercadopago.service'
 // Goal and planning services
 export { savingsGoalService } from './savings-goal.service'
 
+// Collector service
+export { collectorService } from './collector.service'
+
 // Re-export types from Prisma
 export type { 
   User, 
@@ -26,6 +29,7 @@ export type {
   Budget,
   Debt,
   Account,
+  Collector,
   CategoryType,
   Frequency,
   ExpenseStatus,
