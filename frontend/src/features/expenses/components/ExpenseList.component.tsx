@@ -202,9 +202,16 @@ export const ExpenseList = () => {
                           </span>
                         )}
                       </h3>
-                      <p className="text-sm text-gray-500 mt-0.5">
-                        {expense.category.name}
-                      </p>
+                      <div className="flex flex-col space-y-0.5 mt-0.5">
+                        <p className="text-sm text-gray-500">
+                          {expense.category.name}
+                        </p>
+                        {expense.collector && (
+                          <p className="text-xs text-gray-400 italic">
+                            {expense.collector.name}
+                          </p>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center space-x-1 flex-shrink-0">
                       <button
@@ -317,6 +324,11 @@ export const ExpenseList = () => {
                               </span>
                             )}
                           </div>
+                          {expense.collector && (
+                            <div className="text-xs text-gray-400 italic mt-0.5">
+                              {expense.collector.name}
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500">

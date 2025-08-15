@@ -29,6 +29,15 @@ export type Income = {
   updatedAt: string;
 }
 
+export type Collector = {
+  id: string;
+  collectorId: string;
+  name: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type Expense = {
   id: string;
   userId: string;
@@ -40,6 +49,8 @@ export type Expense = {
   dueDate?: string;
   status: 'PENDING' | 'PAID' | 'OVERDUE' | 'PARTIAL'; // Changed to uppercase to match backend API
   mercadoPagoPaymentId?: string; // For tracking MercadoPago payments
+  collectorId?: string; // Foreign key to Collector
+  collector?: Collector; // Populated collector object from the API
   createdAt: string;
   updatedAt: string;
 }
