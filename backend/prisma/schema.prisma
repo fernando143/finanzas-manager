@@ -26,6 +26,7 @@ model User {
   budgets      Budget[]
   debts        Debt[]
   accounts     Account[]
+  collectors   Collector[]
 
   @@map("users")
 }
@@ -52,6 +53,24 @@ model Category {
   @@index([type])
   @@index([userId])
   @@map("categories")
+}
+
+// Modelo de Collectors (Receptores de pagos de MercadoPago)
+model Collector {
+  id           String   @id @default(cuid())
+  collectorId  String   @unique  // ID único de MercadoPago
+  name         String              // Nombre personalizable
+  userId       String              // Usuario propietario
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relaciones
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenses Expense[]
+  
+  @@index([userId])
+  @@index([collectorId])
+  @@map("collectors")
 }
 
 // Modelo de Ingresos
@@ -89,12 +108,14 @@ model Expense {
   status                ExpenseStatus @default(PENDING)
   userId                String
   mercadoPagoPaymentId  String?       // For tracking MercadoPago payments to prevent duplicates
+  collectorId           String?       // Nueva columna opcional
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
 
   // Relaciones
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [categoryId], references: [id])
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  Category   @relation(fields: [categoryId], references: [id])
+  collector Collector? @relation(fields: [collectorId], references: [id])
 
   @@index([userId])
   @@index([dueDate])

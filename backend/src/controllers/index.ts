@@ -8,3 +8,6 @@ export { CategoryController } from './category.controller'
 
 // Integration controllers
 export { MercadoPagoController } from './mercadopago.controller'
+
+// Collector controller
+export { CollectorController } from './collector.controller'

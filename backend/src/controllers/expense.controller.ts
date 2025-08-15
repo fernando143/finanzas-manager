@@ -33,6 +33,7 @@ const ExpenseCreateSchema = z.object({
     }),
   status: z.enum(["PENDING", "PAID", "OVERDUE", "PARTIAL"]).default("PENDING"),
   mercadoPagoPaymentId: z.string().optional(),
+  collectorId: z.string().optional(),
 });
 
 const ExpenseUpdateSchema = ExpenseCreateSchema.partial();
@@ -72,6 +73,7 @@ const ExpenseQuerySchema = z.object({
   createdTo: z.string().datetime().optional(),
   dueFrom: z.string().datetime().optional(),
   dueTo: z.string().datetime().optional(),
+  collectorId: z.string().optional(),
 });
 
 export const ExpenseController = {
@@ -96,6 +98,7 @@ export const ExpenseController = {
       createdTo,
       dueFrom,
       dueTo,
+      collectorId,
     } = query;
 
     let mercadoPagoSync:
@@ -175,6 +178,7 @@ export const ExpenseController = {
     if (category) whereClause.categoryId = category;
     if (frequency) whereClause.frequency = frequency;
     if (status) whereClause.status = status;
+    if (collectorId) whereClause.collectorId = collectorId;
     
     // Search filter
     if (search) {
@@ -251,7 +255,9 @@ export const ExpenseController = {
   // POST /api/expenses
   create: asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user!.userId;
+    console.log('Request body:', req.body);
     const validatedData = ExpenseCreateSchema.parse(req.body);
+    console.log('Validated data:', validatedData);
 
     const expense = await expenseService.create(userId, validatedData);
 

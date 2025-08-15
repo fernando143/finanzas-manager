@@ -6,15 +6,8 @@ const prisma = new PrismaClient({
   errorFormat: 'pretty',
 })
 
-// Middleware para logging
-prisma.$use(async (params: any, next: any) => {
-  const before = Date.now()
-  const result = await next(params)
-  const after = Date.now()
-  
-  console.log(`📊 Query ${params.model}.${params.action} took ${after - before}ms`)
-  return result
-})
+// Note: Middleware logging removed as $use is deprecated in Prisma 6.x
+// Query logging is handled by the log configuration above
 
 // Función de conexión
 export const connectDatabase = async (): Promise<void> => {

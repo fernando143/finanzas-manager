@@ -71,6 +71,7 @@ export interface ExpenseWhereClause {
     contains: string;
     mode: 'insensitive';
   };
+  collectorId?: string;
 }
 
 export interface IncomeWhereClause {
@@ -91,3 +92,6 @@ export interface CategoryWhereClause {
     mode: 'insensitive';
   };
 }
+
+// Export collector types
+export * from './collector.types'

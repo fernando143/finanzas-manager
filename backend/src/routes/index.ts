@@ -7,6 +7,7 @@ import incomeRoutes from "./income.routes";
 import expenseRoutes from "./expense.routes";
 import categoryRoutes from "./category.routes";
 import mercadoPagoRoutes from "./mercadopago.routes";
+import collectorRoutes from "./collector.routes";
 
 const router = Router();
 
@@ -37,5 +38,6 @@ router.use("/incomes", incomeRoutes);
 router.use("/expenses", expenseRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/mercadopago", mercadoPagoRoutes);
+router.use("/collectors", collectorRoutes);
 
 export default router;

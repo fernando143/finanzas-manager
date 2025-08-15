@@ -46,6 +46,12 @@ const MercadoPagoPaymentSchema = z.object({
     .optional(),
   payment_method_id: z.string().optional(),
   payment_type_id: z.string().optional(),
+  collector: z
+    .object({
+      id: z.number(),
+      nickname: z.string().optional(),
+    })
+    .optional(),
 });
 
 const MercadoPagoSearchResponseSchema = z.object({
@@ -91,6 +97,10 @@ export interface MercadoPagoPayment {
   };
   payment_method_id?: string;
   payment_type_id?: string;
+  collector?: {
+    id: number;
+    nickname?: string;
+  };
 }
 
 export interface MercadoPagoSearchResponse {
@@ -314,6 +324,7 @@ export class MercadoPagoService {
     payment: MercadoPagoPayment,
     userId: string,
     defaultCategoryId: string,
+    collectorId?: string,
   ) {
     const amount = Math.abs(payment.transaction_amount); // Ensure positive amount for expenses
 
@@ -342,6 +353,7 @@ export class MercadoPagoService {
       dueDate: formattedDueDate,
       status: "PAID" as const,
       mercadoPagoPaymentId: payment.id.toString(),
+      collectorId: collectorId || undefined,
     };
   }
 
@@ -375,9 +387,31 @@ export class MercadoPagoService {
         searchResponse.results,
       );
 
-      // Convert to expense format
-      const expenses = expensePayments.map((payment) =>
-        this.convertPaymentToExpense(payment, userId, defaultCategoryId),
+      // Import collector service
+      const { collectorService } = await import('./index');
+
+      // Convert to expense format with collectors
+      const expenses = await Promise.all(
+        expensePayments.map(async (payment) => {
+          let collectorId: string | undefined;
+          
+          // Si el pago tiene collector, buscar o crear
+          if (payment.collector?.id) {
+            const collector = await collectorService.getOrCreate(
+              userId,
+              payment.collector.id.toString(),
+              payment.collector.nickname || `Collector ${payment.collector.id}`
+            );
+            collectorId = collector.id;
+          }
+          
+          return this.convertPaymentToExpense(
+            payment, 
+            userId, 
+            defaultCategoryId,
+            collectorId
+          );
+        })
       );
 
       return {
