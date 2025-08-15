@@ -217,7 +217,7 @@ export class MercadoPagoService {
     if (options.limit) {
       queryParams.append("limit", options.limit.toString());
     } else {
-      queryParams.append("limit", "50"); // Default limit
+      queryParams.append("limit", "500"); // Default limit increased to capture more payments
     }
 
     if (options.offset) {
