@@ -1,0 +1,1 @@
+export { useCollectors } from './useCollectors.hook'

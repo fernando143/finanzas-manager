@@ -1,0 +1,1 @@
+export { collectorService } from './collector.service'

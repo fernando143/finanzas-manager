@@ -11,6 +11,7 @@ import { CategoryManagement } from './features/categories/components'
 import { TransactionList } from './shared/ui/components'
 import { DueDatesCalendar } from './features/expenses/components'
 import { Reports } from './features/reports'
+import { CollectorList } from './features/collectors'
 import './App.css'
 
 function AppContent() {
@@ -51,6 +52,7 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/categories" element={<CategoryManagement />} />
+              <Route path="/collectors" element={<CollectorList />} />
               <Route path="/transactions" element={<TransactionList />} />
               <Route path="/due-dates" element={<DueDatesCalendar />} />
               <Route path="/reports" element={<Reports />} />
