@@ -49,6 +49,7 @@ export type Expense = {
   dueDate?: string;
   status: 'PENDING' | 'PAID' | 'OVERDUE' | 'PARTIAL'; // Changed to uppercase to match backend API
   mercadoPagoPaymentId?: string; // For tracking MercadoPago payments
+  dateApproved?: string; // Date when the payment was approved by MercadoPago
   collectorId?: string; // Foreign key to Collector
   collector?: Collector; // Populated collector object from the API
   createdAt: string;

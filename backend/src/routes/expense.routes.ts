@@ -16,6 +16,9 @@ const ExpenseCreateSchema = z.object({
   frequency: z.enum(['MONTHLY', 'BIWEEKLY', 'WEEKLY', 'ANNUAL', 'ONE_TIME']),
   dueDate: z.string().datetime().optional(),
   status: z.enum(['PENDING', 'PAID', 'OVERDUE', 'PARTIAL']).default('PENDING'),
+  mercadoPagoPaymentId: z.string().optional(),
+  dateApproved: z.string().datetime().optional(), // Date when the payment was approved by MercadoPago
+  collectorId: z.string().optional(),
 })
 
 const ExpenseUpdateSchema = ExpenseCreateSchema.partial()

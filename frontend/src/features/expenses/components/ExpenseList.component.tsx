@@ -259,11 +259,14 @@ export const ExpenseList = () => {
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-gray-500">Creado</p>
+                    <p className="text-gray-500">
+                      Aprobado
+                    </p>
                     <p className="font-medium text-gray-900">
-                      {expense.createdAt
-                        ? format(parseISO(expense.createdAt), "dd MMM", { locale: es })
-                        : "-"}
+                      {expense.dateApproved
+                        ? format(parseISO(expense.dateApproved), "dd MMM HH:mm'hs'", { locale: es })
+                        : '-'
+                        }
                     </p>
                   </div>
                 </div>
@@ -302,7 +305,7 @@ export const ExpenseList = () => {
                         Vencimiento
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Creado
+                        Aprobado
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
                         Estado
@@ -353,11 +356,14 @@ export const ExpenseList = () => {
                             : "-"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {expense.createdAt
-                            ? format(parseISO(expense.createdAt), "dd MMM yyyy", {
-                                locale: es,
-                              })
-                            : "-"}
+                          <div>
+                            {expense.dateApproved ? (
+                              <>
+                                <div className="text-xs text-gray-400">Aprobado</div>
+                                <div>{format(parseISO(expense.dateApproved), "dd MMM yyyy HH:mm'hs'", { locale: es })}</div>
+                              </>
+                            ) : '-'}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span

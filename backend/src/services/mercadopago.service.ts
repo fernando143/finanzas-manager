@@ -345,6 +345,9 @@ export class MercadoPagoService {
     // Format as ISO string to match the expected format
     const formattedDueDate = transactionDate.toISOString();
 
+    // Keep the original approved date for the dateApproved field
+    const dateApproved = payment.date_approved ? new Date(payment.date_approved).toISOString() : undefined;
+
     return {
       description,
       amount,
@@ -353,6 +356,7 @@ export class MercadoPagoService {
       dueDate: formattedDueDate,
       status: "PAID" as const,
       mercadoPagoPaymentId: payment.id.toString(),
+      dateApproved: dateApproved, // Add the date when the payment was approved
       collectorId: collectorId || undefined,
     };
   }

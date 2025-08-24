@@ -108,6 +108,7 @@ model Expense {
   status                ExpenseStatus @default(PENDING)
   userId                String
   mercadoPagoPaymentId  String?       // For tracking MercadoPago payments to prevent duplicates
+  dateApproved          DateTime?     // Date when the payment was approved by MercadoPago
   collectorId           String?       // Nueva columna opcional
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt

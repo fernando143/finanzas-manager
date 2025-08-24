@@ -33,6 +33,7 @@ const ExpenseCreateSchema = z.object({
     }),
   status: z.enum(["PENDING", "PAID", "OVERDUE", "PARTIAL"]).default("PENDING"),
   mercadoPagoPaymentId: z.string().optional(),
+  dateApproved: z.string().datetime().optional(), // Date when the payment was approved by MercadoPago
   collectorId: z.string().optional(),
 });
 
