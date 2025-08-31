@@ -37,13 +37,17 @@ export const ExpenseList = () => {
 
 
   const handleCreateExpense = async (
-    expenseData: Omit<Expense, "id" | "userId" | "createdAt" | "updatedAt" | "category">,
+    expenseData: Omit<Expense, "id" | "userId" | "createdAt" | "updatedAt" | "category"> & { recurrenceCount?: number },
   ) => {
     const result = await createExpense(expenseData);
     const success = result !== null;
 
     if (success) {
       setIsCreateFormOpen(false);
+      // Mostrar mensaje de éxito si se crearon múltiples egresos
+      if (Array.isArray(result)) {
+        alert(`Se crearon exitosamente ${result.length} egresos`);
+      }
     }
   };
 

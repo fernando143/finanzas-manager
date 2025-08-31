@@ -49,8 +49,27 @@ const fetchExpensesApi = async (filters: UseExpensesParams): Promise<ExpensesRes
   return response.data;
 };
 
-const createExpenseApi = async (expense: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'>): Promise<Expense> => {
-  const response = await apiClient.post<Expense>('/expenses', expense);
+const createExpenseApi = async (expense: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'> & { recurrenceCount?: number }): Promise<Expense | Expense[]> => {
+  // Usar endpoint batch si:
+  // 1. recurrenceCount > 1 (múltiples recurrencias especificadas) O
+  // 2. recurrenceCount es undefined Y frequency no es ONE_TIME (crear hasta fin de año)
+  const shouldUseBatch = 
+    (expense.recurrenceCount && expense.recurrenceCount > 1) ||
+    (expense.recurrenceCount === undefined && expense.frequency !== 'ONE_TIME');
+  
+  if (shouldUseBatch) {
+    const response = await apiClient.post<{ expenses: Expense[], summary: { created: number, total: number } }>('/expenses/batch', expense);
+    
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Error al crear gastos recurrentes');
+    }
+    
+    return response.data.expenses;
+  }
+  
+  // Si no, usar endpoint individual
+  const { recurrenceCount, ...expenseWithoutRecurrence } = expense;
+  const response = await apiClient.post<Expense>('/expenses', expenseWithoutRecurrence);
   
   if (!response.success || !response.data) {
     throw new Error(response.error || 'Error al crear gasto');
@@ -165,7 +184,7 @@ export const useExpenses = () => {
   });
 
   
-  const createExpense = async (expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'>): Promise<Expense | null> => {
+  const createExpense = async (expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'> & { recurrenceCount?: number }): Promise<Expense | Expense[] | null> => {
     try {
       const result = await createMutation.mutateAsync(expenseData);
       return result;

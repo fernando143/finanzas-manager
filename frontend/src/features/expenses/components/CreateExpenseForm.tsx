@@ -1,32 +1,106 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon, CalendarIcon } from '@heroicons/react/24/outline'
 import type { Expense } from '../../../types/api'
 import { useCategories } from '../../../shared/hooks'
-import { createLocalDate } from '../../../shared/utils'
+import { createLocalDate, formatCurrencyARS } from '../../../shared/utils'
 import { CurrencyInput } from '../../../shared/ui/components'
 import { expenseSchema, type ExpenseFormData, defaultExpenseValues } from '../validation/expenseValidation'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 interface CreateExpenseFormProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (expense: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'>) => void
+  onSave: (expense: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'> & { recurrenceCount?: number }) => void
 }
 
 export const CreateExpenseForm = ({ isOpen, onClose, onSave }: CreateExpenseFormProps) => {
   const { expenseCategories, loading: categoriesLoading, refreshCategories } = useCategories()
+  const [showPreview, setShowPreview] = useState(false)
   
   const {
     register,
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting }
   } = useForm<ExpenseFormData>({
     resolver: zodResolver(expenseSchema),
     defaultValues: defaultExpenseValues
   })
+  
+  // Watch form values for preview
+  const watchFrequency = watch('frequency')
+  const watchDueDate = watch('dueDate')
+  const watchRecurrenceCount = watch('recurrenceCount')
+  const watchAmount = watch('amount')
+  
+  // Calculate recurring dates for preview
+  const recurringDates = useMemo(() => {
+    if (!watchDueDate || watchFrequency === 'ONE_TIME') return []
+    
+    const dates: Date[] = []
+    const startDate = new Date(watchDueDate)
+    const endOfYear = new Date(startDate.getFullYear(), 11, 31)
+    
+    // Use recurrenceCount if provided, otherwise calculate until end of year
+    let count = watchRecurrenceCount || 0
+    
+    if (!count) {
+      // Calculate how many occurrences until end of year
+      let tempDate = new Date(startDate)
+      while (tempDate <= endOfYear && dates.length < 52) {
+        dates.push(new Date(tempDate))
+        
+        switch (watchFrequency) {
+          case 'WEEKLY':
+            tempDate.setDate(tempDate.getDate() + 7)
+            break
+          case 'BIWEEKLY':
+            tempDate.setDate(tempDate.getDate() + 14)
+            break
+          case 'MONTHLY':
+            const day = startDate.getDate()
+            tempDate.setMonth(tempDate.getMonth() + 1)
+            const lastDayOfMonth = new Date(tempDate.getFullYear(), tempDate.getMonth() + 1, 0).getDate()
+            tempDate.setDate(Math.min(day, lastDayOfMonth))
+            break
+          case 'ANNUAL':
+            tempDate.setFullYear(tempDate.getFullYear() + 1)
+            break
+        }
+      }
+    } else {
+      // Use specified count
+      let tempDate = new Date(startDate)
+      for (let i = 0; i < count && i < 52; i++) {
+        dates.push(new Date(tempDate))
+        
+        switch (watchFrequency) {
+          case 'WEEKLY':
+            tempDate.setDate(tempDate.getDate() + 7)
+            break
+          case 'BIWEEKLY':
+            tempDate.setDate(tempDate.getDate() + 14)
+            break
+          case 'MONTHLY':
+            const day = startDate.getDate()
+            tempDate.setMonth(tempDate.getMonth() + 1)
+            const lastDayOfMonth = new Date(tempDate.getFullYear(), tempDate.getMonth() + 1, 0).getDate()
+            tempDate.setDate(Math.min(day, lastDayOfMonth))
+            break
+          case 'ANNUAL':
+            tempDate.setFullYear(tempDate.getFullYear() + 1)
+            break
+        }
+      }
+    }
+    
+    return dates
+  }, [watchDueDate, watchFrequency, watchRecurrenceCount])
 
   // Refresh categories when form opens
   useEffect(() => {
@@ -48,6 +122,23 @@ export const CreateExpenseForm = ({ isOpen, onClose, onSave }: CreateExpenseForm
   }, [isOpen, onClose])
 
   const onSubmit = async (data: ExpenseFormData) => {
+    // Confirmar si se van a crear múltiples egresos
+    if (data.frequency !== 'ONE_TIME' && data.dueDate) {
+      const count = data.recurrenceCount || recurringDates.length
+      if (count > 1) {
+        const confirmMessage = `¿Está seguro de crear ${count} egresos ${
+          data.frequency === 'MONTHLY' ? 'mensuales' :
+          data.frequency === 'WEEKLY' ? 'semanales' :
+          data.frequency === 'BIWEEKLY' ? 'quincenales' :
+          'anuales'
+        } por ${formatCurrencyARS(data.amount)} cada uno?\n\nTotal: ${formatCurrencyARS(data.amount * count)}`
+        
+        if (!confirm(confirmMessage)) {
+          return
+        }
+      }
+    }
+    
     // Convert dueDate to ISO format if provided
     let dueDateISO: string | undefined = undefined
     if (data.dueDate) {
@@ -55,12 +146,12 @@ export const CreateExpenseForm = ({ isOpen, onClose, onSave }: CreateExpenseForm
       dueDateISO = dueDate.toISOString()
     }
     
-    const expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'> = {
+    const expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'category'> & { recurrenceCount?: number } = {
       ...data,
       dueDate: dueDateISO
     }
     
-    onSave(expenseData)
+    onSave(expenseData as any)
   }
 
   if (!isOpen) return null
@@ -220,6 +311,86 @@ export const CreateExpenseForm = ({ isOpen, onClose, onSave }: CreateExpenseForm
                 <option value="PARTIAL">Parcial</option>
               </select>
             </div>
+
+            {/* Campo de recurrencias - solo visible si frecuencia no es ONE_TIME */}
+            {watchFrequency !== 'ONE_TIME' && (
+              <div>
+                <label htmlFor="recurrenceCount" className="block text-sm font-medium text-gray-700 mb-1">
+                  Número de recurrencias (opcional)
+                </label>
+                <Controller
+                  name="recurrenceCount"
+                  control={control}
+                  render={({ field }) => (
+                    <>
+                      <input
+                        id="recurrenceCount"
+                        type="number"
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(e) => {
+                          const value = e.target.value ? parseInt(e.target.value) : undefined
+                          field.onChange(value)
+                        }}
+                        min="1"
+                        max="52"
+                        placeholder="Dejar vacío para todo el año"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      {errors.recurrenceCount && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {errors.recurrenceCount.message}
+                        </p>
+                      )}
+                    </>
+                  )}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Si no especifica un número, se crearán egresos hasta fin de año
+                </p>
+              </div>
+            )}
+
+            {/* Preview de fechas recurrentes */}
+            {watchFrequency !== 'ONE_TIME' && watchDueDate && recurringDates.length > 0 && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-md">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium text-blue-900 flex items-center">
+                    <CalendarIcon className="h-4 w-4 mr-1" />
+                    Preview de egresos a crear
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview(!showPreview)}
+                    className="text-xs text-blue-600 hover:text-blue-800"
+                  >
+                    {showPreview ? 'Ocultar' : 'Mostrar'} ({recurringDates.length} egresos)
+                  </button>
+                </div>
+                
+                {showPreview && (
+                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                    {recurringDates.slice(0, 12).map((date, index) => (
+                      <div key={index} className="text-xs text-gray-700 flex justify-between">
+                        <span>{format(date, "dd 'de' MMMM yyyy", { locale: es })}</span>
+                        <span className="font-medium">{formatCurrencyARS(watchAmount || 0)}</span>
+                      </div>
+                    ))}
+                    {recurringDates.length > 12 && (
+                      <p className="text-xs text-gray-500 italic">
+                        ... y {recurringDates.length - 12} más
+                      </p>
+                    )}
+                  </div>
+                )}
+                
+                <div className="mt-2 pt-2 border-t border-blue-200">
+                  <p className="text-sm font-medium text-blue-900">
+                    Total: {formatCurrencyARS((watchAmount || 0) * recurringDates.length)}
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="flex space-x-3 pt-4">
               <button

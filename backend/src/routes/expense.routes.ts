@@ -21,6 +21,10 @@ const ExpenseCreateSchema = z.object({
   collectorId: z.string().optional(),
 })
 
+const ExpenseBatchCreateSchema = ExpenseCreateSchema.extend({
+  recurrenceCount: z.number().min(1).max(52).optional(),
+})
+
 const ExpenseUpdateSchema = ExpenseCreateSchema.partial()
 
 // Routes
@@ -32,6 +36,7 @@ router.get('/count', ExpenseController.getCount)
 router.get('/dashboard/current-month', ExpenseController.getDashboardCurrentMonth)
 router.get('/', ExpenseController.getAll)
 router.get('/:id', validateParams(IdParamSchema), ExpenseController.getById)
+router.post('/batch', validateBody(ExpenseBatchCreateSchema), ExpenseController.createBatch) // Nuevo endpoint para crear múltiples/recurrentes
 router.post('/', validateBody(ExpenseCreateSchema), ExpenseController.create)
 router.put('/:id', validateParams(IdParamSchema), validateBody(ExpenseUpdateSchema), ExpenseController.update)
 router.patch('/:id', validateParams(IdParamSchema), validateBody(ExpenseUpdateSchema), ExpenseController.update)

@@ -1,5 +1,5 @@
 import { prisma } from './database.service'
-import { Expense, Prisma } from '@prisma/client'
+import { Expense, Prisma, Frequency } from '@prisma/client'
 import { z } from 'zod'
 
 // Schemas de validación
@@ -15,9 +15,167 @@ const ExpenseCreateSchema = z.object({
   collectorId: z.string().optional(),
 })
 
+const ExpenseBatchCreateSchema = ExpenseCreateSchema.extend({
+  recurrenceCount: z.number().min(1).max(52).optional(),
+})
+
 const ExpenseUpdateSchema = ExpenseCreateSchema.partial()
 
 export class ExpenseService {
+  // Método auxiliar para calcular ocurrencias hasta fin de año
+  private calculateOccurrencesUntilEndOfYear(
+    startDate: Date,
+    frequency: Frequency,
+    endOfYear: Date
+  ): number {
+    let count = 0;
+    let currentDate = new Date(startDate);
+    
+    while (currentDate <= endOfYear) {
+      count++;
+      
+      switch (frequency) {
+        case 'WEEKLY':
+          currentDate.setDate(currentDate.getDate() + 7);
+          break;
+        case 'BIWEEKLY':
+          currentDate.setDate(currentDate.getDate() + 14);
+          break;
+        case 'MONTHLY':
+          currentDate.setMonth(currentDate.getMonth() + 1);
+          break;
+        case 'ANNUAL':
+          currentDate.setFullYear(currentDate.getFullYear() + 1);
+          break;
+        case 'ONE_TIME':
+          return 1;
+      }
+    }
+    
+    return count;
+  }
+
+  // Método para generar fechas recurrentes
+  private generateRecurringDates(
+    startDate: Date,
+    frequency: Frequency,
+    recurrenceCount?: number
+  ): Date[] {
+    const dates: Date[] = [];
+    const endOfYear = new Date(startDate.getFullYear(), 11, 31);
+    endOfYear.setUTCHours(15, 0, 0, 0); // GMT-3 noon
+    
+    // Si no se especifica cantidad, calcular hasta fin de año
+    if (!recurrenceCount) {
+      recurrenceCount = this.calculateOccurrencesUntilEndOfYear(
+        startDate,
+        frequency,
+        endOfYear
+      );
+    }
+    
+    let currentDate = new Date(startDate);
+    
+    for (let i = 0; i < recurrenceCount; i++) {
+      // Mantener GMT-3 noon (15:00 UTC)
+      const dateToAdd = new Date(currentDate);
+      dateToAdd.setUTCHours(15, 0, 0, 0);
+      dates.push(dateToAdd);
+      
+      // Incrementar según frecuencia
+      switch (frequency) {
+        case 'WEEKLY':
+          currentDate.setDate(currentDate.getDate() + 7);
+          break;
+        case 'BIWEEKLY':
+          currentDate.setDate(currentDate.getDate() + 14);
+          break;
+        case 'MONTHLY':
+          // Manejar casos especiales de fin de mes
+          const day = startDate.getDate();
+          currentDate.setMonth(currentDate.getMonth() + 1);
+          // Si el día original era mayor al último día del nuevo mes, usar el último día
+          const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+          currentDate.setDate(Math.min(day, lastDayOfMonth));
+          break;
+        case 'ANNUAL':
+          currentDate.setFullYear(currentDate.getFullYear() + 1);
+          break;
+        case 'ONE_TIME':
+          return [dates[0]]; // Solo una fecha
+      }
+      
+      // No crear fechas más allá del año actual si no se especificó cantidad
+      if (!recurrenceCount && currentDate > endOfYear) {
+        break;
+      }
+    }
+    
+    return dates;
+  }
+
+  // Método para crear egresos recurrentes
+  async createRecurring(
+    userId: string,
+    data: z.infer<typeof ExpenseBatchCreateSchema>
+  ): Promise<{ expenses: Expense[], summary: { created: number, total: number } }> {
+    const validatedData = ExpenseBatchCreateSchema.parse(data);
+    const { recurrenceCount, dueDate, ...baseData } = validatedData;
+    
+    // Verificar que la categoría existe
+    const category = await prisma.category.findFirst({
+      where: {
+        id: baseData.categoryId,
+        OR: [
+          { userId: userId },
+          { userId: null }
+        ],
+        type: 'EXPENSE'
+      }
+    });
+
+    if (!category) {
+      throw new Error('Category not found or not accessible');
+    }
+    
+    // Calcular fechas de vencimiento
+    const startDate = dueDate ? new Date(dueDate) : new Date();
+    const dates = this.generateRecurringDates(
+      startDate,
+      baseData.frequency as Frequency,
+      recurrenceCount
+    );
+    
+    // Crear array de egresos a insertar
+    const expensesToCreate = dates.map(date => ({
+      ...baseData,
+      dueDate: date,
+      mercadoPagoPaymentId: baseData.mercadoPagoPaymentId || null,
+      collectorId: baseData.collectorId || null,
+      userId
+    }));
+    
+    // Crear todos en una transacción
+    const createdExpenses = await prisma.$transaction(
+      expensesToCreate.map(expense =>
+        prisma.expense.create({
+          data: expense,
+          include: {
+            category: true,
+            collector: true
+          }
+        })
+      )
+    );
+    
+    return {
+      expenses: createdExpenses,
+      summary: {
+        created: createdExpenses.length,
+        total: createdExpenses.length
+      }
+    };
+  }
   async create(userId: string, data: z.infer<typeof ExpenseCreateSchema>): Promise<Expense> {
     // Validar datos
     console.log('Service received data:', data);

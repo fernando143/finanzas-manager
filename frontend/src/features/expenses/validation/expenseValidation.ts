@@ -10,7 +10,11 @@ export const expenseSchema = z.object({
     const date = new Date(val)
     return !isNaN(date.getTime())
   }, 'Fecha inválida'),
-  status: z.enum(['PENDING', 'PAID', 'OVERDUE', 'PARTIAL'])
+  status: z.enum(['PENDING', 'PAID', 'OVERDUE', 'PARTIAL']),
+  recurrenceCount: z.number()
+    .min(1, 'El número de recurrencias debe ser al menos 1')
+    .max(52, 'El número máximo de recurrencias es 52')
+    .optional()
 })
 
 export type ExpenseFormData = z.infer<typeof expenseSchema>
@@ -21,5 +25,6 @@ export const defaultExpenseValues: ExpenseFormData = {
   categoryId: '',
   frequency: 'MONTHLY',
   dueDate: '',
-  status: 'PENDING'
+  status: 'PENDING',
+  recurrenceCount: undefined
 }

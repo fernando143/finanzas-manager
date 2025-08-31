@@ -18,8 +18,8 @@ const validateGMT3NoonDate = (dateString: string): boolean => {
   return hours === 15 && minutes === 0 && seconds === 0 && milliseconds === 0;
 };
 
-// Validation schemas
-const ExpenseCreateSchema = z.object({
+// Base schema compartido
+const ExpenseBaseSchema = z.object({
   description: z.string().min(1).max(255),
   amount: z.number().positive(),
   categoryId: z.string(), // Simplified validation to debug CUID issue
@@ -35,6 +35,14 @@ const ExpenseCreateSchema = z.object({
   mercadoPagoPaymentId: z.string().optional(),
   dateApproved: z.string().datetime().optional(), // Date when the payment was approved by MercadoPago
   collectorId: z.string().optional(),
+});
+
+// Schema para crear individual (igual que antes)
+const ExpenseCreateSchema = ExpenseBaseSchema;
+
+// Schema para crear batch (agrega solo recurrenceCount)
+const ExpenseBatchCreateSchema = ExpenseBaseSchema.extend({
+  recurrenceCount: z.number().min(1).max(52).optional(),
 });
 
 const ExpenseUpdateSchema = ExpenseCreateSchema.partial();
@@ -266,6 +274,31 @@ export const ExpenseController = {
       success: true,
       message: "Expense created successfully",
       data: { expense },
+    });
+  }),
+
+  // POST /api/expenses/batch
+  createBatch: asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user!.userId;
+    console.log('Batch request body:', req.body);
+    const validatedData = ExpenseBatchCreateSchema.parse(req.body);
+    console.log('Batch validated data:', validatedData);
+
+    // Validación: Si frequency es ONE_TIME y recurrenceCount > 1, retornar error
+    if (validatedData.frequency === "ONE_TIME" && validatedData.recurrenceCount && validatedData.recurrenceCount > 1) {
+      return res.status(400).json({
+        success: false,
+        error: "Cannot create recurring expenses with ONE_TIME frequency",
+        code: "INVALID_RECURRENCE",
+      });
+    }
+
+    const result = await expenseService.createRecurring(userId, validatedData);
+
+    res.status(201).json({
+      success: true,
+      message: `Successfully created ${result.summary.created} expenses`,
+      data: result,
     });
   }),
 
